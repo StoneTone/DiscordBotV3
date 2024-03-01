@@ -10,11 +10,9 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.NotNull;
 
-
-
 public class Listeners extends ListenerAdapter {
 
-    private final long guildID = 1099539568459522191L;
+    private final long guildID = 0000000L;
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
