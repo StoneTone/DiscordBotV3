@@ -1,9 +1,9 @@
 package com.bot.discordbotv3.listener;
 
+
+import com.bot.discordbotv3.lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -16,11 +16,15 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+import java.io.IOException;
 
 
 public class Listeners extends ListenerAdapter {
 
-    private final long guildID = 0000000000000000L; //change to actual guild
+    private final long guildID = 0000000000L; //change to actual guild
     private User requestedUser = null;
     private Role requestedRole = null;
 
@@ -41,6 +45,10 @@ public class Listeners extends ListenerAdapter {
                                 .addOptions(new OptionData(OptionType.STRING, "rolerequest", "Allows you to request a role", true)
                                         .addChoice("Test Role1", "1106046269236981811")
                                         .addChoice("Test Role2", "1106449464983572533"))
+                )
+                .addCommands(
+                        Commands.slash("play", "Will play any song")
+                            .addOptions(new OptionData(OptionType.STRING, "name", "Name of the song to play", true))
                 )
                 .queue();
         System.out.println(event.getJDA().getSelfUser().getName() + " has logged in!");
@@ -63,6 +71,10 @@ public class Listeners extends ListenerAdapter {
     Add slash command for music (basics: play, pause and stop)
     More to add later....
      */
+
+    //fix issues with play add sub classes for slash commands
+    //check github for reference
+    //https://github.com/relaxingleg/Tutorial-Bot/blob/master/src/main/java/com/relaxingleg/commands/music/NowPlaying.java
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event){
         switch(event.getName()){
@@ -87,8 +99,42 @@ public class Listeners extends ListenerAdapter {
                 });
                 event.reply("Your role request has been submitted for review. Please wait for a response.").setEphemeral(true).queue();
                 break;
+            case "play":
+                Member member = event.getMember();
+                GuildVoiceState memberVoiceState = member.getVoiceState();
+
+                if(!memberVoiceState.inAudioChannel()){
+                    event.reply("You need to be in a voice channel!").setEphemeral(true).queue();
+                    return;
+                }
+
+                Member self = event.getGuild().getSelfMember();
+                GuildVoiceState selfVoiceState = self.getVoiceState();
+
+                if(!selfVoiceState.inAudioChannel()){
+                    //Join
+                    event.getGuild().getAudioManager().openAudioConnection(memberVoiceState.getChannel());
+                }else{
+                    if(selfVoiceState.getChannel() != memberVoiceState.getChannel()){
+                        event.reply("You need to be in the same channel as me").setEphemeral(true).queue();
+                        return;
+                    }
+                }
+
+                Document document = null;
+                try {
+                    document = Jsoup.connect(event.getOption("name").getAsString()).get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                String title = document.title().replaceAll(" - YouTube$", "");
+
+                PlayerManager playerManager = PlayerManager.get();
+                playerManager.play(event.getGuild(), event.getOption("name").getAsString());
+
+                event.reply("Playing: " + title).setEphemeral(true).queue();
             default:
-                event.reply("Invalid slash command!").setEphemeral(true);
+                event.reply("Invalid slash command!").setEphemeral(true).queue();
         }
     }
 
