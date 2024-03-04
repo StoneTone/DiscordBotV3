@@ -3,6 +3,7 @@ package com.bot.discordbotv3.config;
 import com.bot.discordbotv3.listener.Listeners;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +22,7 @@ public class BotConfig {
         JDABuilder builder = JDABuilder.createDefault(token);
         builder.enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS));
         builder.addEventListeners(new Listeners());
+        builder.setActivity(Activity.customStatus("Not taking over the planet"));
         return builder.build();
     }
 }
