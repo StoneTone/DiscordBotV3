@@ -145,6 +145,13 @@ public class Listeners extends ListenerAdapter {
     More to add later....
      */
 
+    /*
+    Note:
+    EC2 instance: "scp -i /path/to/your/key.pem /path/to/your/app.jar ec2-user@your-instance-ip:/path/on/ec2/
+    Run NoHup: nohup "java -jar /path/to/your/app.jar > /path/to/your/app.log (or nohup.out) 2>&1 &" (Keeps java instance up)
+    for nohup logs: "tail -f nohup.out
+     */
+
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event){
             //region Test Command with Sum
