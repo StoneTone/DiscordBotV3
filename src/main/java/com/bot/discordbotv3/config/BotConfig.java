@@ -17,11 +17,20 @@ public class BotConfig {
     @Value("${discord.token}")
     private String token;
 
+    private final long guildId;
+    private final long ownerId;
+
+    public BotConfig(@Value("${guild.id}") long guildId, @Value("${owner.id}") long ownerId) {
+        this.guildId = guildId;
+        this.ownerId = ownerId;
+    }
+
+
     @Bean
     public JDA jda() throws LoginException {
         JDABuilder builder = JDABuilder.createDefault(token);
         builder.enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS));
-        builder.addEventListeners(new Listeners());
+        builder.addEventListeners(new Listeners(guildId, ownerId));
         builder.setActivity(Activity.customStatus("Not taking over the planet"));
         return builder.build();
     }
