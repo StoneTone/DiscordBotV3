@@ -7,7 +7,7 @@
     </appender>
 
     <!-- JDA -->
-    <logger name="net.dv8tion.jda" level="trace"/>
+    <logger name="net.dv8tion.jda" level="info"/>
 
     <!-- All the remaining loggers -->
     <root level="info">

@@ -4,6 +4,11 @@ package com.bot.discordbotv3.listener;
 import com.bot.discordbotv3.lavaplayer.GuildMusicManager;
 import com.bot.discordbotv3.lavaplayer.PlayerManager;
 import com.bot.discordbotv3.lavaplayer.TrackScheduler;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.youtube.YouTube;
+import com.google.api.services.youtube.model.SearchListResponse;
+import com.google.api.services.youtube.model.SearchResult;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -33,19 +38,17 @@ import java.util.List;
 
 public class Listeners extends ListenerAdapter {
 
-    private long guildID;
-    private long ownerId;
+    private final long guildID;
+    private final long ownerId;
     private User requestedUser = null;
     private Role requestedRole = null;
+    private final String ytSecret;
     private final Logger logger = LoggerFactory.getLogger(Listeners.class);
 
-    public Listeners(@Value("${guild.id}") long guildID, @Value("${owner.id}") long ownerId) {
+    public Listeners(long guildID, long ownerId, String ytSecret) {
         this.guildID = guildID;
         this.ownerId = ownerId;
-    }
-
-    public Listeners() {
-
+        this.ytSecret = ytSecret;
     }
 
     @Override
@@ -72,7 +75,10 @@ public class Listeners extends ListenerAdapter {
                 )
                 .addCommands(
                         Commands.slash("play", "Will play any song")
-                            .addOptions(new OptionData(OptionType.STRING, "url", "Name of the song to play (Any HTTP URL is supported)", true))
+//                            .addOptions(new OptionData(OptionType.STRING, "type", "Name of the song to play (Any HTTP URL is supported)", true))
+                        .addOption(OptionType.STRING, "url", "Name of the song to play (Any HTTP URL is supported)" )
+                        .addOption(OptionType.STRING, "search", "Search YouTube for a song")
+
                 )
                 .addCommands(
                         Commands.slash("nowplaying", "Will display the current song playing")
@@ -208,17 +214,58 @@ public class Listeners extends ListenerAdapter {
                 }
 
                 Document document = null;
-                try {
-                    document = Jsoup.connect(event.getOption("url").getAsString()).get();
-                } catch (IOException e) {
-                    e.printStackTrace();
+                for(OptionMapping options : event.getOptions()){
+                    if(options.getName().equals("search")){
+                        try{
+                            YouTube youTube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), null)
+                                    .setApplicationName("Discord Bot")
+                                    .build();
+
+                            YouTube.Search.List search = youTube.search().list("id, snippet");
+                            search.setKey(ytSecret);
+                            search.setQ(options.getAsString());
+                            search.setType("video");
+                            search.setMaxResults(1L);
+
+                            SearchListResponse response = search.execute();
+                            List<SearchResult> results = response.getItems();
+
+                            if(results != null && !results.isEmpty()){
+                                String videoId = results.get(0).getId().getVideoId();
+                                String videoUrl = "https://youtu.be/" + videoId;
+
+                                document = Jsoup.connect(videoUrl).get();
+                                String title = document.title().replaceAll(" - YouTube$", "");
+
+                                PlayerManager playerManager = PlayerManager.get();
+                                playerManager.play(event.getGuild(), videoUrl);
+
+                                event.reply("Playing: " + title).setEphemeral(true).queue();
+                            }else{
+                                event.reply("No search results found for: " + options.getName()).setEphemeral(true).queue();
+                            }
+                        }catch(IOException e){
+                            logger.error("Error with search on YouTube: " + e);
+                        }
+                        break;
+                    }
+                    if(options.getName().equals("url")) {
+                        try {
+                            document = Jsoup.connect(event.getOption("url").getAsString()).get();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        String title = document.title().replaceAll(" - YouTube$", "");
+
+                        PlayerManager playerManager = PlayerManager.get();
+                        playerManager.play(event.getGuild(), event.getOption("url").getAsString());
+
+                        event.reply("Playing: " + title).setEphemeral(true).queue();
+                        break;
+                    }
                 }
-                String title = document.title().replaceAll(" - YouTube$", "");
 
-                PlayerManager playerManager = PlayerManager.get();
-                playerManager.play(event.getGuild(), event.getOption("url").getAsString());
 
-                event.reply("Playing: " + title).setEphemeral(true).queue();
             }
 
             else if(event.getName().equals("stop")){

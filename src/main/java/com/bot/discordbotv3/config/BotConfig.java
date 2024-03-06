@@ -19,10 +19,12 @@ public class BotConfig {
 
     private final long guildId;
     private final long ownerId;
+    private String ytSecret;
 
-    public BotConfig(@Value("${guild.id}") long guildId, @Value("${owner.id}") long ownerId) {
+    public BotConfig(@Value("${guild.id}") long guildId, @Value("${owner.id}") long ownerId, @Value("${youtube.secret}") String ytSecret) {
         this.guildId = guildId;
         this.ownerId = ownerId;
+        this.ytSecret = ytSecret;
     }
 
 
@@ -30,7 +32,7 @@ public class BotConfig {
     public JDA jda() throws LoginException {
         JDABuilder builder = JDABuilder.createDefault(token);
         builder.enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS));
-        builder.addEventListeners(new Listeners(guildId, ownerId));
+        builder.addEventListeners(new Listeners(guildId, ownerId, ytSecret));
         builder.setActivity(Activity.customStatus("Not taking over the planet"));
         return builder.build();
     }
