@@ -16,7 +16,6 @@ public class BotConfig {
 
     @Value("${discord.token}")
     private String token;
-
     private final long guildId;
     private final long ownerId;
     private String ytSecret;

@@ -11,6 +11,7 @@ import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -27,13 +28,29 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+
+
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class Listeners extends ListenerAdapter {
@@ -98,6 +115,34 @@ public class Listeners extends ListenerAdapter {
                 .queue();
         //endregion
 
+        //region Schedule for updates
+        ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+        executorService.scheduleAtFixedRate(() -> {
+
+            try {
+                DateTimeFormatter formatter = new DateTimeFormatterBuilder()
+                        .parseCaseInsensitive()
+                        .appendPattern("MMMM d, yyyy")
+                        .toFormatter(Locale.ENGLISH);
+                LocalDate updateDate = LocalDate.parse(updateNotify(), formatter);
+                LocalDate now = LocalDate.now();               //.of(2024,3,8);
+                if(updateDate.isEqual(now)){
+                    //write logic for if there is an update
+                    MessageChannel updateChannel = event.getJDA().getTextChannelById(1161467402089930763L);
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.setTitle("New CS2 Update!");
+                    eb.setDescription("Check out the latest update here: \n " +
+                            "https://www.counter-strike.net/news/updates");
+                    updateChannel.sendMessageEmbeds(eb.build()).queue();
+                }
+                logger.info("Update check completed.");
+            } catch (Exception e) {
+                logger.error("Error during update check: " + e.getMessage());
+            }
+        }, 0, 1, TimeUnit.HOURS);
+        //endregion
+
+        //Logging bot has logged in and is ready
         logger.info(event.getJDA().getSelfUser().getName() + " has logged in!");
     }
 
@@ -149,6 +194,7 @@ public class Listeners extends ListenerAdapter {
     Add slash command for ChatGPT (future)
     Add slash command for music (basics: play, pause and stop) (Check)
     More to add later....
+    https://uselessfacts.jsph.pl/api/v2/facts/random (gets random useless facts)
      */
 
     /*
@@ -232,7 +278,7 @@ public class Listeners extends ListenerAdapter {
 
                             if(results != null && !results.isEmpty()){
                                 String videoId = results.get(0).getId().getVideoId();
-                                String videoUrl = "https://youtu.be/" + videoId;
+                                String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
 
                                 document = Jsoup.connect(videoUrl).get();
                                 String title = document.title().replaceAll(" - YouTube$", "");
@@ -430,6 +476,24 @@ public class Listeners extends ListenerAdapter {
         }
 
         //endregion
+    }
+
+    public String updateNotify() {
+        WebDriverManager.chromedriver().setup();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless");
+        WebDriver driver = new ChromeDriver(options);
+        driver.get("https://www.counter-strike.net/news/updates");
+
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10L));
+
+        WebElement dateElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.updatecapsule_Date_gvPzK")));
+
+        String updateDate = dateElement.getText();
+
+        driver.quit();
+
+        return updateDate;
     }
 
 
