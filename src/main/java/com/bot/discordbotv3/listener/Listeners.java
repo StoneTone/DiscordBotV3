@@ -1,6 +1,7 @@
 package com.bot.discordbotv3.listener;
 
 
+import com.bot.discordbotv3.gpt.ChatRequest;
 import com.bot.discordbotv3.lavaplayer.GuildMusicManager;
 import com.bot.discordbotv3.lavaplayer.PlayerManager;
 import com.bot.discordbotv3.lavaplayer.TrackScheduler;
@@ -9,6 +10,10 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -39,8 +44,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -60,12 +70,14 @@ public class Listeners extends ListenerAdapter {
     private User requestedUser = null;
     private Role requestedRole = null;
     private final String ytSecret;
+    private final String gptSecret;
     private final Logger logger = LoggerFactory.getLogger(Listeners.class);
 
-    public Listeners(long guildID, long ownerId, String ytSecret) {
+    public Listeners(long guildID, long ownerId, String ytSecret, String gptSecret) {
         this.guildID = guildID;
         this.ownerId = ownerId;
         this.ytSecret = ytSecret;
+        this.gptSecret = gptSecret;
     }
 
     @Override
@@ -110,7 +122,8 @@ public class Listeners extends ListenerAdapter {
                         Commands.slash("queue", "Will display the current queue")
                 )
                 .addCommands(
-                        Commands.slash("greet", "Greets you")
+                        Commands.slash("gpt", "Ask GPT a question")
+                        .addOption(OptionType.STRING, "prompt", "Allows you to talk to Howard")
                 )
                 .queue();
         //endregion
@@ -194,7 +207,6 @@ public class Listeners extends ListenerAdapter {
     Add slash command for ChatGPT (future)
     Add slash command for music (basics: play, pause and stop) (Check)
     More to add later....
-    https://uselessfacts.jsph.pl/api/v2/facts/random (gets random useless facts)
      */
 
     /*
@@ -209,9 +221,6 @@ public class Listeners extends ListenerAdapter {
             //region Test Command with Sum
             if(event.getName().equals("sum")) {
                     event.reply("The sum is: " + String.valueOf(event.getOption("num1").getAsInt() + event.getOption("num2").getAsInt())).queue();
-            }
-            else if(event.getName().equals("greet")){
-                event.reply("Hello! " + event.getUser().getName()).setEphemeral(true).queue();
             }
             //endregion
 
@@ -278,7 +287,7 @@ public class Listeners extends ListenerAdapter {
 
                             if(results != null && !results.isEmpty()){
                                 String videoId = results.get(0).getId().getVideoId();
-                                String videoUrl = "https://www.youtube.com/watch?v=" + videoId;
+                                String videoUrl = "https://youtu.be/" + videoId;
 
                                 document = Jsoup.connect(videoUrl).get();
                                 String title = document.title().replaceAll(" - YouTube$", "");
@@ -443,6 +452,56 @@ public class Listeners extends ListenerAdapter {
             }
             //endregion
 
+            //region GPT
+            else if(event.getName().equals("gpt")){
+                ChatRequest request = new ChatRequest("gpt-3.5-turbo", event.getOption("prompt").getAsString());
+                try{
+                    URL url = new URL("https://api.openai.com/v1/chat/completions");
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setRequestProperty("Content-Type", "application/json");
+                    conn.setRequestProperty("Authorization", "Bearer " + gptSecret);
+                    conn.setDoOutput(true);
+
+                    Gson gson = new Gson();
+                    String json = gson.toJson(request);
+                    OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+                    writer.write(json);
+                    writer.flush();
+                    writer.close();
+
+                    //Get Response
+                    BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    String inputLine;
+                    StringBuffer response = new StringBuffer();
+                    while((inputLine = in.readLine()) != null){
+                        response.append(inputLine);
+                    }
+                    in.close();
+
+                    JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
+                    String content = "";
+                    if (jsonResponse.has("choices")) {
+                        JsonArray choices = jsonResponse.getAsJsonArray("choices");
+                        if (choices.size() > 0) {
+                            JsonObject firstChoice = choices.get(0).getAsJsonObject();
+                            if (firstChoice.has("message")) {
+                                JsonObject message = firstChoice.getAsJsonObject("message");
+                                if (message.has("content")) {
+                                    content = message.get("content").getAsString();
+                                }
+                            }
+                        }
+                    }
+
+                    event.reply(content).queue();
+
+                }catch (IOException io){
+                    System.out.println("Error with URL Request for GPT: " + io);
+                }
+            }
+            //endregion
+
             else{
                 event.reply("Invalid slash command!").setEphemeral(true).queue();
             }
@@ -495,6 +554,5 @@ public class Listeners extends ListenerAdapter {
 
         return updateDate;
     }
-
 
 }
