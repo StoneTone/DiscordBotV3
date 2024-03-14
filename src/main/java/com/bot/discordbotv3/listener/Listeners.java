@@ -49,7 +49,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -61,6 +60,7 @@ import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class Listeners extends ListenerAdapter {
@@ -129,17 +129,17 @@ public class Listeners extends ListenerAdapter {
         //endregion
 
         //region Schedule for updates
+        AtomicBoolean messageSent = new AtomicBoolean(false);
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         executorService.scheduleAtFixedRate(() -> {
-
             try {
                 DateTimeFormatter formatter = new DateTimeFormatterBuilder()
                         .parseCaseInsensitive()
                         .appendPattern("MMMM d, yyyy")
                         .toFormatter(Locale.ENGLISH);
                 LocalDate updateDate = LocalDate.parse(updateNotify(), formatter);
-                LocalDate now = LocalDate.now();               //.of(2024,3,8);
-                if(updateDate.isEqual(now)){
+                LocalDate now = LocalDate.now();
+                if(updateDate.isEqual(now) && !messageSent.get()) {
                     //write logic for if there is an update
                     MessageChannel updateChannel = event.getJDA().getTextChannelById(1161467402089930763L);
                     EmbedBuilder eb = new EmbedBuilder();
@@ -147,6 +147,12 @@ public class Listeners extends ListenerAdapter {
                     eb.setDescription("Check out the latest update here: \n " +
                             "https://www.counter-strike.net/news/updates");
                     updateChannel.sendMessageEmbeds(eb.build()).queue();
+                    messageSent.set(true);
+                    logger.info("Update message sent");
+
+                }else if(!updateDate.isEqual(now)){
+                    messageSent.set(false);
+                    logger.info("No update available for today");
                 }
                 logger.info("Update check completed.");
             } catch (Exception e) {
