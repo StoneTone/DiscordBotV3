@@ -46,9 +46,9 @@ public class PlayCommand {
         }
 
         Document document = null;
-        for (OptionMapping options : event.getOptions()) {
-            if (options.getName().equals("search")) {
-                try {
+        for(OptionMapping options : event.getOptions()){
+            if(options.getName().equals("search")){
+                try{
                     YouTube youTube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), null)
                             .setApplicationName("Discord Bot")
                             .build();
@@ -62,7 +62,7 @@ public class PlayCommand {
                     SearchListResponse response = search.execute();
                     List<SearchResult> results = response.getItems();
 
-                    if (results != null && !results.isEmpty()) {
+                    if(results != null && !results.isEmpty()){
                         String videoId = results.get(0).getId().getVideoId();
                         String videoUrl = "https://youtu.be/" + videoId;
 
@@ -73,12 +73,26 @@ public class PlayCommand {
                         playerManager.play(event.getGuild(), videoUrl);
 
                         event.reply("Playing: " + title).setEphemeral(true).queue();
-                    } else {
+                    }else{
                         event.reply("No search results found for: " + options.getName()).setEphemeral(true).queue();
                     }
-                } catch (IOException e) {
+                }catch(IOException e){
                     logger.error("Error with search on YouTube: " + e);
                 }
+                break;
+            }
+            if(options.getName().equals("url")) {
+                try {
+                    document = Jsoup.connect(event.getOption("url").getAsString()).get();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                String title = document.title().replaceAll(" - YouTube$", "");
+
+                PlayerManager playerManager = PlayerManager.get();
+                playerManager.play(event.getGuild(), event.getOption("url").getAsString());
+
+                event.reply("Playing: " + title).setEphemeral(true).queue();
                 break;
             }
         }

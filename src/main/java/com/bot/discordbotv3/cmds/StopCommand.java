@@ -34,6 +34,6 @@ public class StopCommand {
         TrackScheduler trackScheduler = guildMusicManager.getTrackScheduler();
         trackScheduler.getQueue().clear();
         trackScheduler.getPlayer().stopTrack();
-        event.reply("Stopped").queue();
+        event.reply("Stopped").setEphemeral(true).queue();
     }
 }
