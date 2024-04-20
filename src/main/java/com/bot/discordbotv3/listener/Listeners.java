@@ -116,6 +116,13 @@ public class Listeners extends ListenerAdapter {
             case "queue" -> QueueCommand.handleQueueCommand(event);
             case "nowplaying" -> NowPlayingCommand.handleNowPlayingCommand(event);
             case "gpt" -> GptCommand.handleGptCommand(event, gptSecret);
+            case "lofi" -> {
+                String optionStr = "";
+                for(OptionMapping option : event.getOptions()){
+                    optionStr = option.getAsString();
+                }
+                LofiCommand.handleLofiCommand(event, ytSecret, optionStr);
+            }
             default -> event.reply("Invalid slash command!").setEphemeral(true).queue();
         }
     }

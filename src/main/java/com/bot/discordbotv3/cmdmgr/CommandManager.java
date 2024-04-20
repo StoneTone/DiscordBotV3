@@ -20,13 +20,13 @@ public class CommandManager {
                     .addCommands(
                             Commands.slash("rolerequest", "Allows you to request a role")
                                     .addOptions(new OptionData(OptionType.STRING, "rolerequest", "Allows you to request a role", true)
-                                            .addChoice("ShreeSports", "912638897316589579")
-                                            .addChoice("ShreeActiveRoster", "1137982033671495761")
-                                            .addChoice("Shreeveloper", "1044861143514099712")
-                                            .addChoice("Amigos", "695888137146335253")
-                                            .addChoice("Geek Squad", "698031938790752286")
-                                            .addChoice("Branded Payment", "572633970198446091")
-                                            .addChoice("Peasant", "747662211744399442"))
+                                            .addChoice("Test", "912638897316589579")
+                                            .addChoice("Test", "1137982033671495761")
+                                            .addChoice("Test", "1044861143514099712")
+                                            .addChoice("Test", "695888137146335253")
+                                            .addChoice("Test", "698031938790752286")
+                                            .addChoice("Test", "572633970198446091")
+                                            .addChoice("Test", "747662211744399442"))
                     )
                     .addCommands(
                             Commands.slash("play", "Will play any song")
@@ -58,6 +58,16 @@ public class CommandManager {
                     .addCommands(
                             Commands.slash("gpt", "Ask GPT a question")
                                     .addOption(OptionType.STRING, "prompt", "Allows you to talk to Howard", true)
+                    )
+                    .addCommands(
+                            Commands.slash("lofi", "Plays lofi radio")
+                            .addOptions(new OptionData(OptionType.STRING, "type", "Pick what type of lofi sound", true)
+                                .addChoice("Relax/Study", "beats to relax/study to")
+                                    .addChoice("Sleep/Chill", "beats to sleep/chill to")
+                                    .addChoice("Chill/Game", "beats to chill/game to")
+                                    .addChoice("Focus/Study", "music to focus/study to")
+                                    .addChoice("Escape/Dream", "music to escape/dream to")
+                            )
                     )
                     .queue();
             logger.info("Commands registered successfully!");
