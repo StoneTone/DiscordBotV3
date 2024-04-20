@@ -1,6 +1,7 @@
 package com.bot.discordbotv3.lavaplayer;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
@@ -63,5 +64,23 @@ public class PlayerManager {
 
             }
         });
+    }
+
+    public boolean isPaused(Guild guild){
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        AudioPlayer audioPlayer = guildMusicManager.getTrackScheduler().getPlayer();
+        return audioPlayer.isPaused();
+    }
+
+    public void pause(Guild guild){
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        AudioPlayer audioPlayer = guildMusicManager.getTrackScheduler().getPlayer();
+        audioPlayer.setPaused(true);
+    }
+
+    public void unpause(Guild guild){
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        AudioPlayer audioPlayer = guildMusicManager.getTrackScheduler().getPlayer();
+        audioPlayer.setPaused(false);
     }
 }

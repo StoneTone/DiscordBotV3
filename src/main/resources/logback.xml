@@ -8,6 +8,8 @@
 
     <!-- JDA -->
     <logger name="net.dv8tion.jda" level="info"/>
+    <!-- lavaplayer -->
+    <logger name="dev.arbjerg.lavaplayer" level="info"/>
 
     <!-- All the remaining loggers -->
     <root level="info">
