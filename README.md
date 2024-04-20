@@ -43,6 +43,8 @@ GPT_SECRET=your_gpt_secret_key
 ```
 *-to get your guild id and owner id you need to enable developer mode in discord-*
 
+Navigate to `src/main/java/com/bot/discordbotv3/cmdmgr` and change the `rolerequest` command options to your roles in your server 
+
 ## Core Features
 
 ### Role Request
