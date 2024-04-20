@@ -4,18 +4,44 @@
 Welcome to my Java Discord bot application! This bot is built using JDA (Java Discord API) and Lavaplayer, allowing seamless integration of audio playback in Discord servers. With a focus on simplicity and functionality, my bot provides essential features for managing roles, playing music, and even integrating ChatGPT for engaging conversations.
 
 ## Setup
+###Discord Portal
+1. Go to the [Discord Developer](https://discord.com/developers)  portal
+2. Click `New Application`
+3. Click `OAuth2` Tab
+4. Click `Reset Secret` and copy the key and paste in your .env file
+5. In the OAuth2 URL Generator, make sure to select (bot, application.commands)
+6. Select administrator permissions
+7. Copy the generated url and paste into your browser and invite it to your server
+
+###OpenAi (ChatGPT)
+1. Go to [OpenAI](https://platform.openai.com/) portal
+2. Create an account (if you don't have one)
+3. Click API Keys
+4. Create a new secret key
+
+###Google (YouTube Search)
+1. Go to the [Google Cloud](https://console.cloud.google.com) console
+2. Create an account (if you don't have one)
+3. Create a project
+4. Go to `API & Services`
+5. Click `Library`
+6. Find and enable ***YouTube Data API v3***
+7. Click `Create Credentials` and follow the prompts
+
+###Run Application Locally
 To run this application locally, follow these steps:
 
 1. Clone the repository to your local machine.
 2. Create a `.env` file in the root directory of the project.
 3. Add the following properties to the `.env` file:
-```markdown
+```
 DISCORD_TOKEN=your_discord_bot_token
 GUILD_ID=your_server_id
 YOUTUBE_SECRET=your_youtube_api_key
 OWNER_ID=your_discord_id
 GPT_SECRET=your_gpt_secret_key
 ```
+*-to get your guild id and owner id you need to enable developer mode in discord-*
 
 ## Core Features
 

@@ -87,14 +87,6 @@ public class Listeners extends ListenerAdapter {
         logger.info(event.getJDA().getSelfUser().getName() + " has logged in!");
     }
 
-    //TODO
-    /*
-    Add slash command for roles that requests to my user with buttons (Check)
-    Add slash command for ChatGPT (future) (Check)
-    Add slash command for music (basics: play, pause and stop) (Check)
-    More to add later....
-     */
-
     /*
     Note:
     EC2 instance: "scp -i /path/to/your/key.pem /path/to/your/app.jar ec2-user@your-instance-ip:/home/ec2-user
