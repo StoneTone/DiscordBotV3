@@ -20,13 +20,7 @@ public class CommandManager {
                     .addCommands(
                             Commands.slash("rolerequest", "Allows you to request a role")
                                     .addOptions(new OptionData(OptionType.STRING, "rolerequest", "Allows you to request a role", true)
-                                            .addChoice("Test", "912638897316589579")
-                                            .addChoice("Test", "1137982033671495761")
-                                            .addChoice("Test", "1044861143514099712")
-                                            .addChoice("Test", "695888137146335253")
-                                            .addChoice("Test", "698031938790752286")
-                                            .addChoice("Test", "572633970198446091")
-                                            .addChoice("Test", "747662211744399442"))
+                                            .addChoice("IRL", "717459083690770462"))
                     )
                     .addCommands(
                             Commands.slash("play", "Will play any song")
