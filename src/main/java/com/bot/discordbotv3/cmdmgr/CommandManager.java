@@ -1,9 +1,11 @@
 package com.bot.discordbotv3.cmdmgr;
 
+import com.bot.discordbotv3.options.CaseOptions;
+import com.bot.discordbotv3.options.LofiOptions;
+import com.bot.discordbotv3.options.RoleOptions;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,14 +21,7 @@ public class CommandManager {
                     )
                     .addCommands(
                             Commands.slash("rolerequest", "Allows you to request a role")
-                                    .addOptions(new OptionData(OptionType.STRING, "rolerequest", "Allows you to request a role", true)
-                                            .addChoice("Test", "912638897316589579")
-                                            .addChoice("Test", "1137982033671495761")
-                                            .addChoice("Test", "1044861143514099712")
-                                            .addChoice("Test", "695888137146335253")
-                                            .addChoice("Test", "698031938790752286")
-                                            .addChoice("Test", "572633970198446091")
-                                            .addChoice("Test", "747662211744399442"))
+                                    .addOptions(RoleOptions.handleRoleOptions())
                     )
                     .addCommands(
                             Commands.slash("play", "Will play any song")
@@ -61,13 +56,11 @@ public class CommandManager {
                     )
                     .addCommands(
                             Commands.slash("lofi", "Plays lofi radio")
-                            .addOptions(new OptionData(OptionType.STRING, "type", "Pick what type of lofi sound", true)
-                                .addChoice("Relax/Study", "beats to relax/study to")
-                                    .addChoice("Sleep/Chill", "beats to sleep/chill to")
-                                    .addChoice("Chill/Game", "beats to chill/game to")
-                                    .addChoice("Focus/Study", "music to focus/study to")
-                                    .addChoice("Escape/Dream", "music to escape/dream to")
-                            )
+                            .addOptions(LofiOptions.handleLofiOptions())
+                    )
+                    .addCommands(
+                            Commands.slash("open", "Open any CS2 Case for free!")
+                            .addOptions(CaseOptions.handleOptions())
                     )
                     .queue();
             logger.info("Commands registered successfully!");

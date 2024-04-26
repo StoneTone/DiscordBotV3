@@ -57,7 +57,7 @@ public class LofiCommand {
 
             YouTube.Search.List search = youTube.search().list("id, snippet");
             search.setKey(ytSecret);
-            search.setQ("Lofi girl" + option);
+            search.setQ("Lofi girl " + option);
             search.setType("video");
             search.setMaxResults(1L);
 
