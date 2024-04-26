@@ -43,7 +43,7 @@ OWNER_ID=your_discord_id
 GPT_SECRET=your_gpt_secret_key
 ```
 
-####Additional Notes
+#### Additional Notes
 
 *-to get your guild id and owner id you need to enable developer mode in discord-*
 
