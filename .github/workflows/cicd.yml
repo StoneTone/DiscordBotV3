@@ -1,57 +1,66 @@
-name: Docker Build and Push
+name: Conditional Pipeline Stages
 
 on:
   push:
     branches:
-      - master  # Set this to the branch you use
+      - master
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
+    if: "contains(github.event.head_commit.message, 'testD') || contains(github.event.head_commit.message, 'allD')"
     steps:
-    - name: Check Out Code
-      uses: actions/checkout@v2
+      - name: Check Out Code
+        uses: actions/checkout@v2
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'adopt'
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
 
-    - name: Build with Maven
-      run: mvn clean package
-      env:
-        DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-        GUILD_ID: ${{ secrets.GUILD_ID }}
-        OWNER_ID: ${{ secrets.OWNER_ID }}
-        YOUTUBE_SECRET: ${{ secrets.YOUTUBE_SECRET }}
-        GPT_SECRET: ${{ secrets.GPT_SECRET }}
+      - name: Build with Maven
+        run: mvn clean package
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          GUILD_ID: ${{ secrets.GUILD_ID }}
+          OWNER_ID: ${{ secrets.OWNER_ID }}
+          YOUTUBE_SECRET: ${{ secrets.YOUTUBE_SECRET }}
+          GPT_SECRET: ${{ secrets.GPT_SECRET }}
 
-    - name: Log in to DockerHub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: test
+    if: "contains(github.event.head_commit.message, 'buildD') || contains(github.event.head_commit.message, 'allD')"
+    steps:
+      - name: Log in to DockerHub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Build and Push Docker Image
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }} .
-        docker push ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
 
-
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SERVER_IP }}
-        username: ${{ secrets.SERVER_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22
-        script: |
-          docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
-          docker stop discordbot || true
-          docker rm discordbot || true
-          docker run -d --name discordbot -p 8080:8080 \
-            -e DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }} \
-            -e GUILD_ID=${{ secrets.GUILD_ID }} \
-            -e OWNER_ID=${{ secrets.OWNER_ID }} \
-            -e YOUTUBE_SECRET=${{ secrets.YOUTUBE_SECRET }} \
-            -e GPT_SECRET=${{ secrets.GPT_SECRET }} \
-            ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: "contains(github.event.head_commit.message, 'deployD') || contains(github.event.head_commit.message, 'allD')"
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
+            sudo docker stop myapp || true
+            sudo docker rm myapp || true
+            sudo docker run -d --name myapp -p 8080:8080 \
+              -e DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN }}" \
+              -e GUILD_ID="${{ secrets.GUILD_ID }}" \
+              -e OWNER_ID="${{ secrets.OWNER_ID }}" \
+              -e YOUTUBE_SECRET="${{ secrets.YOUTUBE_SECRET }}" \
+              -e GPT_SECRET="${{ secrets.GPT_SECRET }}" \
+              ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
