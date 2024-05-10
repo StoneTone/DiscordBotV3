@@ -30,7 +30,7 @@ jobs:
 
   build-and-push:
     runs-on: ubuntu-latest
-    needs: test
+#    needs: test
     if: "contains(github.event.head_commit.message, 'buildD') || contains(github.event.head_commit.message, 'allD')"
     steps:
       - name: Log in to DockerHub
@@ -43,8 +43,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build-and-push
-    if: "contains(github.event.head_commit.message, 'deployD') || contains(github.event.head_commit.message, 'allD')"
+#    needs: build-and-push
+    if: "github.event.pull_request.merged == true && contains(github.event.pull_request.title, 'deployD')"
     steps:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
