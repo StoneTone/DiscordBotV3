@@ -1,14 +1,17 @@
-name: Conditional Pipeline Stages
+name: Docker Build and Push
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Which stage to run: build, docker, deploy'
+        required: true
+        default: 'build'
 
 jobs:
-  test:
+  build:
+    if: ${{ github.event.inputs.stage == 'build' || github.event.inputs.stage == 'all' }}
     runs-on: ubuntu-latest
-    if: "contains(github.event.head_commit.message, 'testD') || contains(github.event.head_commit.message, 'allD')"
     steps:
       - name: Check Out Code
         uses: actions/checkout@v2
@@ -28,10 +31,10 @@ jobs:
           YOUTUBE_SECRET: ${{ secrets.YOUTUBE_SECRET }}
           GPT_SECRET: ${{ secrets.GPT_SECRET }}
 
-  build-and-push:
+  docker:
+    if: ${{ github.event.inputs.stage == 'docker' || github.event.inputs.stage == 'all' }}
+    needs: build
     runs-on: ubuntu-latest
-#    needs: test
-    if: "contains(github.event.head_commit.message, 'buildD') || contains(github.event.head_commit.message, 'allD')"
     steps:
       - name: Log in to DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -42,9 +45,9 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
 
   deploy:
+    if: ${{ github.event.inputs.stage == 'deploy' || github.event.inputs.stage == 'all' }}
+    needs: docker
     runs-on: ubuntu-latest
-#    needs: build-and-push
-    if: "github.event.pull_request.merged == true && contains(github.event.pull_request.title, 'deployD')"
     steps:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
@@ -54,13 +57,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
-            sudo docker stop myapp || true
-            sudo docker rm myapp || true
-            sudo docker run -d --name myapp -p 8080:8080 \
-              -e DISCORD_TOKEN="${{ secrets.DISCORD_TOKEN }}" \
-              -e GUILD_ID="${{ secrets.GUILD_ID }}" \
-              -e OWNER_ID="${{ secrets.OWNER_ID }}" \
-              -e YOUTUBE_SECRET="${{ secrets.YOUTUBE_SECRET }}" \
-              -e GPT_SECRET="${{ secrets.GPT_SECRET }}" \
+            docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
+            docker stop discordbot || true
+            docker rm discordbot || true
+            docker run -d --name discordbot -p 8080:8080 \
+              -e DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }} \
+              -e GUILD_ID=${{ secrets.GUILD_ID }} \
+              -e OWNER_ID=${{ secrets.OWNER_ID }} \
+              -e YOUTUBE_SECRET=${{ secrets.YOUTUBE_SECRET }} \
+              -e GPT_SECRET=${{ secrets.GPT_SECRET }} \
               ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
