@@ -57,10 +57,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
-            docker stop discordbot || true
-            docker rm discordbot || true
-            docker run -d --name discordbot -p 8080:8080 \
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
+            sudo docker stop discordbot || true
+            sudo docker rm discordbot || true
+            sudo docker run -d --name discordbot -p 8080:8080 \
               -e DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }} \
               -e GUILD_ID=${{ secrets.GUILD_ID }} \
               -e OWNER_ID=${{ secrets.OWNER_ID }} \
