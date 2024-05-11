@@ -1,16 +1,12 @@
-name: Docker Build and Push
+name: Discord CICD
 
 on:
-  workflow_dispatch:
-    inputs:
-      stage:
-        description: 'Which stage to run: build, docker, deploy'
-        required: true
-        default: 'build'
+  push:
+    branches:
+      - master
 
 jobs:
   build:
-    if: ${{ github.event.inputs.stage == 'build' || github.event.inputs.stage == 'all' }}
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Code
@@ -40,7 +36,6 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
 
   deploy:
-    if: ${{ github.event.inputs.stage == 'deploy' || github.event.inputs.stage == 'all' }}
     needs: build
     runs-on: ubuntu-latest
     steps:
