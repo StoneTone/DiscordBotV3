@@ -65,23 +65,6 @@ jobs:
                     --output text)
           echo "EC2_IP=$EC2_IP" >> $GITHUB_ENV
 
-      - name: Update SERVER_IP Secret
-        run: |
-          sudo npm install -g @octokit/core
-          GITHUB_TOKEN=${{ secrets.TOKEN_GITHUB }}
-          REPO=${{ github.repository }}
-          OWNER=${REPO%%/*}
-          REPO_NAME=${REPO##*/}
-          node -e "
-            const { Octokit } = require('@octokit/core');
-            const octokit = new Octokit({ auth: process.env.TOKEN_GITHUB });
-            octokit.request('PUT /repos/{owner}/{repo}/actions/secrets/{secret_name}', {
-              owner: process.env.OWNER,
-              repo: process.env.REPO_NAME,
-              secret_name: 'SERVER_IP',
-              data: { encrypted_value: process.env.EC2_IP, key_id: '' }
-            });
-          "
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
