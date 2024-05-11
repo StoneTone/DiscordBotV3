@@ -39,10 +39,48 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-duration-seconds: 3600
+
+      - name: Get EC2 Instance IP
+        run: |
+          EC2_IP=$(aws ec2 describe-instances \
+                    --filters "Name=instance-id,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+                    --query 'Reservations[0].Instances[0].PublicIpAddress' \
+                    --output text)
+          echo "EC2_IP=$EC2_IP" >> $GITHUB_ENV
+
+      - name: Update SERVER_IP Secret
+        run: |
+          sudo npm install -g @octokit/core
+          GITHUB_TOKEN=${{ secrets.TOKEN_GITHUB }}
+          REPO=${{ github.repository }}
+          OWNER=${REPO%%/*}
+          REPO_NAME=${REPO##*/}
+          node -e "
+            const { Octokit } = require('@octokit/core');
+            const octokit = new Octokit({ auth: process.env.TOKEN_GITHUB });
+            octokit.request('PUT /repos/{owner}/{repo}/actions/secrets/{secret_name}', {
+              owner: process.env.OWNER,
+              repo: process.env.REPO_NAME,
+              secret_name: 'SERVER_IP',
+              data: { encrypted_value: process.env.EC2_IP, key_id: '' }
+            });
+          "
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SERVER_IP }}
+          host: ${{ env.EC2_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
