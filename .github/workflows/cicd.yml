@@ -33,7 +33,7 @@ jobs:
 
   docker:
     if: ${{ github.event.inputs.stage == 'docker' || github.event.inputs.stage == 'all' }}
-    needs: build
+#    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Log in to DockerHub
@@ -46,7 +46,7 @@ jobs:
 
   deploy:
     if: ${{ github.event.inputs.stage == 'deploy' || github.event.inputs.stage == 'all' }}
-    needs: docker
+#    needs: docker
     runs-on: ubuntu-latest
     steps:
       - name: Deploy to EC2
