@@ -26,6 +26,14 @@ jobs:
           OWNER_ID: ${{ secrets.OWNER_ID }}
           YOUTUBE_SECRET: ${{ secrets.YOUTUBE_SECRET }}
           GPT_SECRET: ${{ secrets.GPT_SECRET }}
+
+      - name: Cache Maven packages
+          uses: actions/cache@v2
+          with:
+            path: ~/.m2
+            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            restore-keys: |
+              ${{ runner.os }}-m2
           
       - name: Login to Docker
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
