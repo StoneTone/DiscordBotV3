@@ -41,8 +41,8 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }} .
-          docker push ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
 
   deploy:
     if: ${{ github.event.inputs.stage == 'deploy' || github.event.inputs.stage == 'all' }}
@@ -57,7 +57,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           script: |
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
             sudo docker stop discordbot || true
             sudo docker rm discordbot || true
             sudo docker run -d --name discordbot -p 8080:8080 \
@@ -66,4 +66,4 @@ jobs:
               -e OWNER_ID=${{ secrets.OWNER_ID }} \
               -e YOUTUBE_SECRET=${{ secrets.YOUTUBE_SECRET }} \
               -e GPT_SECRET=${{ secrets.GPT_SECRET }} \
-              ${{ secrets.DOCKER_USERNAME }}/discordbotv3:${{ github.sha }}
+              ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
