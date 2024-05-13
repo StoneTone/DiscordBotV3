@@ -6,4 +6,4 @@ COPY target/DiscordBotV3-0.3.0-BETA.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "target/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
