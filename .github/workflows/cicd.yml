@@ -40,7 +40,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest --mount type=bind,source=$HOME/.m2,target=/root/.m2 .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest --build-arg MAVEN_REPO=$HOME/.m2/repository -v $HOME/.m2:/root/.m2 .
           docker push ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
 
   deploy:
