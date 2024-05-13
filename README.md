@@ -33,8 +33,9 @@ Welcome to my Java Discord bot application! This bot is built using JDA (Java Di
 To run this application locally, follow these steps:
 
 1. Clone the repository to your local machine.
-2. Create a `.env` file in the root directory of the project.
-3. Add the following properties to the `.env` file:
+2. Create a `application-lcl.properties` file in the root directory of the project and add to your `.gitignore`
+3. Uncomment the line in your `application.properties` file
+4. Add the following properties to the `lcl.properties` file:
 ```
 DISCORD_TOKEN=your_discord_bot_token
 GUILD_ID=your_server_id
@@ -46,6 +47,8 @@ GPT_SECRET=your_gpt_secret_key
 #### Additional Notes
 
 *-to get your guild id and owner id you need to enable developer mode in discord-*
+
+*-Make sure you move your bot to the highest role in the server. `Server Settings/Roles` then click and drag-*
 
 Navigate to `src/main/java/com/bot/discordbotv3/options/RoleOptions` and change the `rolerequest` command options to your roles in your server 
 
@@ -87,8 +90,9 @@ Otherwise, you can leave this blank.
 ## Getting Started
 1. Ensure you have Java 17 installed on your system.
 2. Install Maven for dependency management.
-3. Set up the `.env` file with the required properties.
-4. Compile and run the application using Maven.
+3. Set up your environment variables in GitHub for deployment
+4. Change the deploy stage in the cicd.yaml file for your deployment
+5. Compile and run the application using Maven.
 
 ## Contributions
 Contributions are welcome! Feel free to fork this repository and submit pull requests for any improvements or additional features.
