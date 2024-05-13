@@ -34,14 +34,21 @@ jobs:
           OWNER_ID: ${{ secrets.OWNER_ID }}
           YOUTUBE_SECRET: ${{ secrets.YOUTUBE_SECRET }}
           GPT_SECRET: ${{ secrets.GPT_SECRET }}
-          
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
       - name: Login to Docker
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build and Push Docker Image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest --build-arg MAVEN_REPO=$HOME/.m2/repository .
-          docker push ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   deploy:
     needs: build
