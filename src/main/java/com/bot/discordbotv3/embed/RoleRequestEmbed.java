@@ -1,4 +1,4 @@
-package com.bot.discordbotv3.btn;
+package com.bot.discordbotv3.embed;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
