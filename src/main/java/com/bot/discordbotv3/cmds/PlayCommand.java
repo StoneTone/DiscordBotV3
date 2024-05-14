@@ -1,11 +1,16 @@
 package com.bot.discordbotv3.cmds;
 
+import com.bot.discordbotv3.lavaplayer.GuildMusicManager;
 import com.bot.discordbotv3.lavaplayer.PlayerManager;
+import com.bot.discordbotv3.lavaplayer.TrackScheduler;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.SearchListResponse;
 import com.google.api.services.youtube.model.SearchResult;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -16,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class PlayCommand {
@@ -69,9 +75,8 @@ public class PlayCommand {
                         String title = document.title().replaceAll(" - YouTube$", "");
 
                         PlayerManager playerManager = PlayerManager.get();
-                        playerManager.play(event.getGuild(), videoUrl);
+                        playerManager.play(event.getGuild(), videoUrl, event);
 
-                        event.reply("Playing: " + title).setEphemeral(true).queue();
                     }else{
                         event.reply("No search results found for: " + options.getName()).setEphemeral(true).queue();
                     }
@@ -89,8 +94,7 @@ public class PlayCommand {
                 String title = document.title().replaceAll(" - YouTube$", "");
 
                 PlayerManager playerManager = PlayerManager.get();
-                playerManager.play(event.getGuild(), event.getOption("url").getAsString());
-
+                playerManager.play(event.getGuild(), event.getOption("url").getAsString(), event);
                 event.reply("Playing: " + title).setEphemeral(true).queue();
                 break;
             }

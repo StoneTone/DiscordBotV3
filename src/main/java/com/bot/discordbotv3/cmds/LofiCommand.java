@@ -72,9 +72,7 @@ public class LofiCommand {
                 String title = document.title().replaceAll(" - YouTube$", "");
 
                 PlayerManager playerManager = PlayerManager.get();
-                playerManager.play(event.getGuild(), videoUrl);
-
-                event.reply("Playing: " + title).setEphemeral(true).queue();
+                playerManager.play(event.getGuild(), videoUrl, event);
             }else{
                 event.reply("No search results found for Lofi girl " + option).setEphemeral(true).queue();
             }
