@@ -74,6 +74,7 @@ public class Listeners extends ListenerAdapter {
                 LofiCommand.handleLofiCommand(event, ytSecret, optionStr);
             }
             case "open" -> CaseCommand.handleCaseCommand(event);
+            case "embed" -> EmbedCommand.handleEmbedCommand(event);
             default -> event.reply("Invalid slash command!").setEphemeral(true).queue();
         }
     }
