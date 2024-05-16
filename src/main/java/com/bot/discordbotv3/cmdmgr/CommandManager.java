@@ -1,6 +1,7 @@
 package com.bot.discordbotv3.cmdmgr;
 
 import com.bot.discordbotv3.options.CaseOptions;
+import com.bot.discordbotv3.options.EmbedBuilderOptions;
 import com.bot.discordbotv3.options.LofiOptions;
 import com.bot.discordbotv3.options.RoleOptions;
 import net.dv8tion.jda.api.entities.Guild;
@@ -61,6 +62,11 @@ public class CommandManager {
                     .addCommands(
                             Commands.slash("open", "Open any CS2 Case for free!")
                             .addOptions(CaseOptions.handleOptions())
+                    )
+                    .addCommands(
+                            Commands.slash("embed", "Creates an embed that the bot replies with")
+                            .addOptions(EmbedBuilderOptions.TITLE, EmbedBuilderOptions.DESCRIPTION, EmbedBuilderOptions.URL,
+                                    EmbedBuilderOptions.AUTHOR, EmbedBuilderOptions.THUMBNAIL, EmbedBuilderOptions.IMAGE)
                     )
                     .queue();
             logger.info("Commands registered successfully!");
