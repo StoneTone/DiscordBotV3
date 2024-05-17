@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 public class RoleOptions {
     public static OptionData handleRoleOptions(){
         return new OptionData(OptionType.STRING, "rolerequest", "Allows you to request a role", true)
-                .addChoice("ShreeSports", "912638897316589579")
+                .addChoice("Counter-Strike", "912638897316589579")
                 .addChoice("ShreeActiveRoster", "1137982033671495761")
                 .addChoice("Shreeveloper", "1044861143514099712")
                 .addChoice("Amigos", "695888137146335253")
