@@ -57,7 +57,7 @@ public class LofiCommand {
 
             YouTube.Search.List search = youTube.search().list("id, snippet");
             search.setKey(ytSecret);
-            search.setQ("Lofi girl" + option);
+            search.setQ("Lofi girl " + option);
             search.setType("video");
             search.setMaxResults(1L);
 
@@ -72,9 +72,7 @@ public class LofiCommand {
                 String title = document.title().replaceAll(" - YouTube$", "");
 
                 PlayerManager playerManager = PlayerManager.get();
-                playerManager.play(event.getGuild(), videoUrl);
-
-                event.reply("Playing: " + title).setEphemeral(true).queue();
+                playerManager.play(event.getGuild(), videoUrl, event);
             }else{
                 event.reply("No search results found for Lofi girl " + option).setEphemeral(true).queue();
             }

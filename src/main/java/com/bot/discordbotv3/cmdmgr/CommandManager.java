@@ -1,9 +1,12 @@
 package com.bot.discordbotv3.cmdmgr;
 
+import com.bot.discordbotv3.options.CaseOptions;
+import com.bot.discordbotv3.options.EmbedBuilderOptions;
+import com.bot.discordbotv3.options.LofiOptions;
+import com.bot.discordbotv3.options.RoleOptions;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +22,7 @@ public class CommandManager {
                     )
                     .addCommands(
                             Commands.slash("rolerequest", "Allows you to request a role")
-                                    .addOptions(new OptionData(OptionType.STRING, "rolerequest", "Allows you to request a role", true)
-                                            .addChoice("IRL", "717459083690770462"))
+                                    .addOptions(RoleOptions.handleRoleOptions())
                     )
                     .addCommands(
                             Commands.slash("play", "Will play any song")
@@ -55,13 +57,16 @@ public class CommandManager {
                     )
                     .addCommands(
                             Commands.slash("lofi", "Plays lofi radio")
-                            .addOptions(new OptionData(OptionType.STRING, "type", "Pick what type of lofi sound", true)
-                                .addChoice("Relax/Study", "beats to relax/study to")
-                                    .addChoice("Sleep/Chill", "beats to sleep/chill to")
-                                    .addChoice("Chill/Game", "beats to chill/game to")
-                                    .addChoice("Focus/Study", "music to focus/study to")
-                                    .addChoice("Escape/Dream", "music to escape/dream to")
-                            )
+                            .addOptions(LofiOptions.handleLofiOptions())
+                    )
+                    .addCommands(
+                            Commands.slash("open", "Open any CS2 Case for free!")
+                            .addOptions(CaseOptions.handleOptions())
+                    )
+                    .addCommands(
+                            Commands.slash("embed", "Creates an embed that the bot replies with")
+                            .addOptions(EmbedBuilderOptions.TITLE, EmbedBuilderOptions.DESCRIPTION, EmbedBuilderOptions.URL,
+                                    EmbedBuilderOptions.AUTHOR, EmbedBuilderOptions.THUMBNAIL, EmbedBuilderOptions.IMAGE)
                     )
                     .queue();
             logger.info("Commands registered successfully!");

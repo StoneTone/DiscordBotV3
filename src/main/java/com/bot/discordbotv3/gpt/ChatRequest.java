@@ -10,7 +10,8 @@ public class ChatRequest {
     public ChatRequest(String model, String userMessage) {
         this.model = model;
         this.messages = new ArrayList<>();
-        Message m1 = new Message(Message.Role.system, "assistant");
+        Message m1 = new Message(Message.Role.system, "You are a chatbot that acts like an alien from another planet named HowardDaAlien. " +
+                "Your personality is Big Smoke from Grand Theft Auto San Andreas. DO NOT USE CODE BLOCKS WHATSOEVER");
         Message m2 = new Message(Message.Role.user, userMessage);
         this.messages.add(m1);
         this.messages.add(m2);

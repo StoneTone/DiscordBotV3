@@ -12,6 +12,7 @@ Welcome to my Java Discord bot application! This bot is built using JDA (Java Di
 5. In the OAuth2 URL Generator, make sure to select (bot, application.commands)
 6. Select administrator permissions
 7. Copy the generated url and paste into your browser and invite it to your server
+8. Move your bot role to the highest priority in your server `Server Settings/Roles`
 
 ### OpenAi (ChatGPT)
 1. Go to [OpenAI](https://platform.openai.com/) portal
@@ -26,14 +27,15 @@ Welcome to my Java Discord bot application! This bot is built using JDA (Java Di
 4. Go to `API & Services`
 5. Click `Library`
 6. Find and enable ***YouTube Data API v3***
-7. Click `Create Credentials` and follow the prompts
+7. Click `Credentials` then `Create Credentials` and follow the prompts
 
 ### Run Application Locally
 To run this application locally, follow these steps:
 
 1. Clone the repository to your local machine.
-2. Create a `.env` file in the root directory of the project.
-3. Add the following properties to the `.env` file:
+2. Create a `application-lcl.properties` file in the root directory of the project and add to your `.gitignore`
+3. Uncomment the line in your `application.properties` file
+4. Add the following properties to the `lcl.properties` file:
 ```
 DISCORD_TOKEN=your_discord_bot_token
 GUILD_ID=your_server_id
@@ -41,9 +43,17 @@ YOUTUBE_SECRET=your_youtube_api_key
 OWNER_ID=your_discord_id
 GPT_SECRET=your_gpt_secret_key
 ```
+
+#### Additional Notes
+
 *-to get your guild id and owner id you need to enable developer mode in discord-*
 
-Navigate to `src/main/java/com/bot/discordbotv3/cmdmgr` and change the `rolerequest` command options to your roles in your server 
+*-Make sure you move your bot to the highest role in the server. `Server Settings/Roles` then click and drag-*
+
+Navigate to `src/main/java/com/bot/discordbotv3/options/RoleOptions` and change the `rolerequest` command options to your roles in your server 
+
+Navigate to `src/main/java/com/bot/discordbotv3/gpt/ChatRequest` and change the system message to configure your own personality to your bot.
+Otherwise, you can leave this blank. 
 
 ## Core Features
 
@@ -54,6 +64,7 @@ Navigate to `src/main/java/com/bot/discordbotv3/cmdmgr` and change the `rolerequ
 
 ### Audio Commands
 - **Play:** Play music from YouTube.
+- **Lofi:** Plays lofi from YouTube.
 - **Pause:** Pause the currently playing track.
 - **Unpause:** Resume playback after pausing.
 - **Stop:** Stop the playback entirely.
@@ -67,6 +78,11 @@ Navigate to `src/main/java/com/bot/discordbotv3/cmdmgr` and change the `rolerequ
 - **Usage:** Utilize the `/gpt <your_message>` command to engage in conversations.
 - **Functionality:** Generates responses based on the provided input using ChatGPT.
 
+### CS2 Case Opening
+- **Description:** Opening Virtual CS2 cases for FREE!
+- **Usage:** Utilize the `/open <case>` command to open cases.
+- **Functionality:** Utilizes CS2 API for all data. Check it out here: [CS2 API](https://github.com/ByMykel/CSGO-API)
+
 ## Dependencies
 - Java 17
 - Maven
@@ -74,8 +90,9 @@ Navigate to `src/main/java/com/bot/discordbotv3/cmdmgr` and change the `rolerequ
 ## Getting Started
 1. Ensure you have Java 17 installed on your system.
 2. Install Maven for dependency management.
-3. Set up the `.env` file with the required properties.
-4. Compile and run the application using Maven.
+3. Set up your environment variables in GitHub for deployment
+4. Change the deploy stage in the cicd.yaml file for your deployment
+5. Compile and run the application using Maven.
 
 ## Contributions
 Contributions are welcome! Feel free to fork this repository and submit pull requests for any improvements or additional features.

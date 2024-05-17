@@ -69,9 +69,8 @@ public class PlayCommand {
                         String title = document.title().replaceAll(" - YouTube$", "");
 
                         PlayerManager playerManager = PlayerManager.get();
-                        playerManager.play(event.getGuild(), videoUrl);
+                        playerManager.play(event.getGuild(), videoUrl, event);
 
-                        event.reply("Playing: " + title).setEphemeral(true).queue();
                     }else{
                         event.reply("No search results found for: " + options.getName()).setEphemeral(true).queue();
                     }
@@ -89,9 +88,7 @@ public class PlayCommand {
                 String title = document.title().replaceAll(" - YouTube$", "");
 
                 PlayerManager playerManager = PlayerManager.get();
-                playerManager.play(event.getGuild(), event.getOption("url").getAsString());
-
-                event.reply("Playing: " + title).setEphemeral(true).queue();
+                playerManager.play(event.getGuild(), event.getOption("url").getAsString(), event);
                 break;
             }
         }
