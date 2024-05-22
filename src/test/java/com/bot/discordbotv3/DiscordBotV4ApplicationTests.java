@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DiscordBotV3ApplicationTests {
+class DiscordBotV4ApplicationTests {
 
     @Test
     void contextLoads() {
