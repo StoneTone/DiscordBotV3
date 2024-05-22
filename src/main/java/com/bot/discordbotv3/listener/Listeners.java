@@ -65,14 +65,7 @@ public class Listeners extends ListenerAdapter {
             case "skip" -> SkipCommand.handleSkipCommand(event);
             case "queue" -> QueueCommand.handleQueueCommand(event);
             case "nowplaying" -> NowPlayingCommand.handleNowPlayingCommand(event);
-            case "gpt" -> {
-                try {
-                    GptCommand.handleGptCommand(event, gptSecret);
-                } catch (Exception e) {
-                    logger.error("from Listeners class " + e);
-                }
-
-            }
+            case "gpt" -> GptCommand.handleGptCommand(event, gptSecret);
             case "lofi" -> {
                 String optionStr = "";
                 for(OptionMapping option : event.getOptions()){
