@@ -39,9 +39,10 @@ public class NowPlayingCommand {
         AudioTrackInfo info = guildMusicManager.getTrackScheduler().getPlayer().getPlayingTrack().getInfo();
         EmbedBuilder embedBuilder = new EmbedBuilder();
         embedBuilder.setTitle("Currently Playing");
-        embedBuilder.setDescription("**Name:** `" + info.title + "`");
-        embedBuilder.appendDescription("\n**Author:** `" + info.author + "`");
-        embedBuilder.appendDescription("\n**URL:** `" + info.uri + "`");
+        embedBuilder.addField("Name", info.title, true);
+        embedBuilder.addField("Author", info.author, true);
+        embedBuilder.setImage(info.artworkUrl);
+        embedBuilder.setUrl(info.uri);
         event.replyEmbeds(embedBuilder.build()).queue();
     }
 }
