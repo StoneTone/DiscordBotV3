@@ -15,6 +15,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 
 public class CaseCommand {
     private static final Logger logger = LoggerFactory.getLogger(CaseCommand.class);
@@ -31,28 +32,39 @@ public class CaseCommand {
         JSONObject caseData = fetchCaseData(caseId);
         String rarity = getRandomRarity();
 
-        if (caseData != null) {
-            String caseName = caseData.getString("name");
-            JSONObject randomItem = getRandomItemWithRarity(caseData, rarity);
-            String image = randomItem.getString("image");
-            EmbedBuilder eb = new EmbedBuilder();
-            eb.setTitle(event.getUser().getEffectiveName() + " opened a " + caseName + " and found");
-            if(isStatTrack()){
-                eb.addField("Item", "Stat-Track " + randomItem.getString("name"),true);
-            }else{
-                eb.addField("Item", randomItem.getString("name"), true);
-            }
-            eb.addField("Wear", getWearText(randomWear), true).setColor(getRarityColor(rarity));
-            eb.addField("Wear Value", String.valueOf(randomWear), true);
-            eb.addField("Pattern", String.valueOf(patternIndex()), true);
-            eb.setImage(image);
+        event.deferReply().queue(hook -> {
+            CompletableFuture.runAsync(() -> {
+                if (caseData != null) {
+                    String caseName = caseData.getString("name");
+                    JSONObject randomItem = getRandomItemWithRarity(caseData, rarity);
+                    String image = randomItem.getString("image");
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.setTitle(event.getUser().getEffectiveName() + " opened a " + caseName + " and found");
+                    if(isStatTrack()){
+                        eb.addField("Item", "Stat-Track " + randomItem.getString("name"),true);
+                    }else{
+                        eb.addField("Item", randomItem.getString("name"), true);
+                    }
+                    eb.addField("Wear", getWearText(randomWear), true).setColor(getRarityColor(rarity));
+                    eb.addField("Wear Value", String.valueOf(randomWear), true);
+                    eb.addField("Pattern", String.valueOf(patternIndex()), true);
+                    eb.setImage(image);
 
-            event.replyEmbeds(eb.build()).queue();
+                    hook.editOriginalEmbeds(eb.build()).queue(
+                            success -> {
+                                logger.info("Success sending message to channel");
+                            },
+                            failure -> {
+                                logger.error("Failed to send reply: " + failure.getMessage());
+                                failure.printStackTrace();
+                            }
+                    );
 
-        } else {
-            event.reply("I'm having issues fetching case data. Please try again").setEphemeral(true).queue();
-        }
-
+                } else {
+                    event.reply("I'm having issues fetching case data. Please try again").setEphemeral(true).queue();
+                }
+            });
+        });
     }
 
     private static String getWearText(double randomWear){

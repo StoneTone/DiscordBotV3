@@ -11,8 +11,6 @@ import com.google.api.services.youtube.model.SearchResult;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,36 +46,33 @@ public class LofiCommand {
         trackScheduler.getQueue().clear();
         trackScheduler.getPlayer().stopTrack();
 
-        Document document = null;
+        event.deferReply().queue(hook -> {
+            try{
+                YouTube youTube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), null)
+                        .setApplicationName("Discord Bot")
+                        .build();
 
-        try{
-            YouTube youTube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), null)
-                    .setApplicationName("Discord Bot")
-                    .build();
+                YouTube.Search.List search = youTube.search().list("id, snippet");
+                search.setKey(ytSecret);
+                search.setQ("Lofi girl " + option);
+                search.setType("video");
+                search.setMaxResults(1L);
 
-            YouTube.Search.List search = youTube.search().list("id, snippet");
-            search.setKey(ytSecret);
-            search.setQ("Lofi girl " + option);
-            search.setType("video");
-            search.setMaxResults(1L);
+                SearchListResponse response = search.execute();
+                List<SearchResult> results = response.getItems();
 
-            SearchListResponse response = search.execute();
-            List<SearchResult> results = response.getItems();
-
-            if(results != null && !results.isEmpty()){
-                String videoId = results.get(0).getId().getVideoId();
-                String videoUrl = "https://youtu.be/" + videoId;
-
-                document = Jsoup.connect(videoUrl).get();
-                String title = document.title().replaceAll(" - YouTube$", "");
-
-                PlayerManager playerManager = PlayerManager.get();
-                playerManager.play(event.getGuild(), videoUrl, event);
-            }else{
-                event.reply("No search results found for Lofi girl " + option).setEphemeral(true).queue();
+                if(results != null && !results.isEmpty()){
+                    String videoId = results.get(0).getId().getVideoId();
+                    String videoUrl = "https://youtu.be/" + videoId;
+                    PlayerManager playerManager = PlayerManager.get();
+                    playerManager.play(event.getGuild(), videoUrl, hook);
+                }else{
+                    event.reply("No search results found for Lofi girl " + option).setEphemeral(true).queue();
+                }
+            }catch(IOException e){
+                logger.error("Error with search on YouTube: " + e);
             }
-        }catch(IOException e){
-            logger.error("Error with search on YouTube: " + e);
-        }
+        });
+
     }
 }
