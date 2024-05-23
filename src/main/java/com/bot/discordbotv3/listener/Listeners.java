@@ -20,7 +20,6 @@ public class Listeners extends ListenerAdapter {
 
     private final long guildID;
     private final long ownerId;
-    private User requestedUser = null;
     private Role requestedRole = null;
     private final String ytSecret;
     private final String gptSecret;
@@ -39,7 +38,6 @@ public class Listeners extends ListenerAdapter {
         Guild guild = event.getJDA().getGuildById(guildID);
         CommandManager.registerCommands(guild);
         //endregion
-
         //Logging bot has logged in and is ready
         logger.info(event.getJDA().getSelfUser().getName() + " has logged in!");
     }
@@ -51,11 +49,10 @@ public class Listeners extends ListenerAdapter {
         switch (commandName) {
             case "sum" -> SumCommand.handleSumCommand(event);
             case "rolerequest" -> {
-                requestedUser = event.getUser();
                 for (OptionMapping option : event.getOptions()) {
                     requestedRole = event.getJDA().getRoleById(option.getAsString());
                 }
-                RoleRequestCommand.handleRoleRequestCommand(event, requestedRole, requestedUser, ownerId);
+                RoleRequestCommand.handleRoleRequestCommand(event, requestedRole, ownerId);
             }
             case "play" -> PlayCommand.handlePlayCommand(event, ytSecret);
             case "pause" -> PauseCommand.handlePauseCommand(event);
@@ -82,7 +79,7 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         //region Button Interaction with Requests
-        RoleRequestEmbed.handleRoleRequestEmbed(event, requestedUser, requestedRole, guildID);
+        RoleRequestEmbed.handleRoleRequestEmbed(event, event.getUser(),requestedRole, guildID);
         //endregion
     }
 

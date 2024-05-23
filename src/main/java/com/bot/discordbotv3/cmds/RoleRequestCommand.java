@@ -1,17 +1,17 @@
 package com.bot.discordbotv3.cmds;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 public class RoleRequestCommand {
-    public static void handleRoleRequestCommand(SlashCommandInteractionEvent event, Role requestedRole, User requestedUser, long ownerId){
+    public static void handleRoleRequestCommand(SlashCommandInteractionEvent event, Role requestedRole, long ownerId){
         EmbedBuilder eb = new EmbedBuilder();
         eb.setTitle("Role Request by " + event.getUser().getName());
         eb.setDescription("User " + event.getUser().getName() + " has requested the " + requestedRole.getName() + " role");
-        requestedUser = event.getUser();
         User botOwner = event.getJDA().getUserById(ownerId);
         botOwner.openPrivateChannel().queue(privateChannel -> {
             privateChannel.sendMessageEmbeds(eb.build())

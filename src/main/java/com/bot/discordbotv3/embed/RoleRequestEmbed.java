@@ -10,6 +10,8 @@ public class RoleRequestEmbed {
         EmbedBuilder eb = new EmbedBuilder();
         switch(event.getComponentId()){
             case "approve":
+                //Delete message once interacted
+                event.getMessage().delete().queue();
                 // Approve button clicked
                 eb.setTitle("Role Approved!");
                 eb.setDescription("Your request for " + "**" +
@@ -21,6 +23,8 @@ public class RoleRequestEmbed {
                 event.reply("Role approved!").setEphemeral(true).queue();
                 break;
             case "decline":
+                //Delete message once interacted
+                event.getMessage().delete().queue();
                 // Decline button clicked
                 eb.setTitle("Role Declined!");
                 eb.setDescription("Your request for " + "**" +
