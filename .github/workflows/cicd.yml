@@ -69,10 +69,10 @@ jobs:
           HOST: ${{ secrets.PI_HOST }}
           USER: ${{ secrets.PI_USER }}
         run: |
-            docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
-            docker stop discordbot || true
-            docker rm discordbot || true
-            docker run -d --name discordbot -p 8080:8080 \
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
+            sudo docker stop discordbot || true
+            sudo docker rm discordbot || true
+            sudo docker run -d --name discordbot -p 8080:8080 \
               -e DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }} \
               -e GUILD_ID=${{ secrets.GUILD_ID }} \
               -e OWNER_ID=${{ secrets.OWNER_ID }} \
