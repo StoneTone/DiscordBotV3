@@ -44,6 +44,7 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v5
         with:
+          platforms: linux/amd64,linux/arm64
           context: .
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
@@ -51,7 +52,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    name: Deploy to Raspberry Pi
+    name: deploy to pi
     runs-on: ubuntu-latest
 
     steps:
