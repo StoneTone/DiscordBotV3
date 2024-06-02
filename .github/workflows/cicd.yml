@@ -52,7 +52,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    name: deploy to pi
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
