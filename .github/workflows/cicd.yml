@@ -59,27 +59,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-#      - name: Install SSH key
-#        uses: webfactory/ssh-agent@v0.7.0
-#        with:
-#          ssh-private-key: ${{ secrets.SSH_PRIVATE }}
-#
-#      - name: Deploy to Raspberry Pi
-#        env:
-#          HOST: ${{ secrets.PI_HOST }}
-#          USER: ${{ secrets.PI_USER }}
-#        run: |
-#            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
-#            sudo docker stop discordbot || true
-#            sudo docker rm discordbot || true
-#            sudo docker run -d --name discordbot -p 8080:8080 \
-#              -e DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }} \
-#              -e GUILD_ID=${{ secrets.GUILD_ID }} \
-#              -e OWNER_ID=${{ secrets.OWNER_ID }} \
-#              -e YOUTUBE_SECRET=${{ secrets.YOUTUBE_SECRET }} \
-#              -e GPT_SECRET=${{ secrets.GPT_SECRET }} \
-#              ${{ secrets.DOCKER_USERNAME }}/discordbotv3:latest
-
       - name: Deploy to Raspberry Pi
         uses: appleboy/ssh-action@master
         with:
