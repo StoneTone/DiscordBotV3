@@ -19,15 +19,13 @@ public class Listeners extends ListenerAdapter {
     private final Logger logger = LoggerFactory.getLogger(Listeners.class);
 
     private final long guildID;
-    private final long ownerId;
     private Role requestedRole = null;
     private final String ytSecret;
     private final String gptSecret;
 
 
-    public Listeners(long guildID, long ownerId, String ytSecret, String gptSecret) {
+    public Listeners(long guildID, String ytSecret, String gptSecret) {
         this.guildID = guildID;
-        this.ownerId = ownerId;
         this.ytSecret = ytSecret;
         this.gptSecret = gptSecret;
     }
@@ -52,7 +50,7 @@ public class Listeners extends ListenerAdapter {
                 for (OptionMapping option : event.getOptions()) {
                     requestedRole = event.getJDA().getRoleById(option.getAsString());
                 }
-                RoleRequestCommand.handleRoleRequestCommand(event, requestedRole, ownerId);
+                RoleRequestCommand.handleRoleRequestCommand(event, requestedRole);
             }
             case "play" -> PlayCommand.handlePlayCommand(event, ytSecret);
             case "pause" -> PauseCommand.handlePauseCommand(event);
