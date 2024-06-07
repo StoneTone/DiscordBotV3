@@ -42,5 +42,6 @@ public class RoleRequestEmbed {
                 event.reply("Role Declined!").setEphemeral(true).queue();
                 break;
         }
+        requests.remove(event.getMessage().getIdLong());
     }
 }
