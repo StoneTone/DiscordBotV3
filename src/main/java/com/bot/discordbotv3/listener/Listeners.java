@@ -77,7 +77,7 @@ public class Listeners extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         //region Button Interaction with Requests
-        RoleRequestEmbed.handleRoleRequestEmbed(event, event.getUser(),requestedRole, guildID);
+        RoleRequestEmbed.handleRoleRequestEmbed(event, guildID);
         //endregion
     }
 

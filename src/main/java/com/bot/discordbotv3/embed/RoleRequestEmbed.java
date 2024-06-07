@@ -1,13 +1,21 @@
 package com.bot.discordbotv3.embed;
 
+import com.bot.discordbotv3.cmds.RoleRequestCommand;
+import com.bot.discordbotv3.vo.RoleRequest;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
+import java.util.Map;
+
 public class RoleRequestEmbed {
-    public static void handleRoleRequestEmbed(ButtonInteractionEvent event, User requestedUser, Role requestedRole, long guildID){
+    public static void handleRoleRequestEmbed(ButtonInteractionEvent event, long guildID){
         EmbedBuilder eb = new EmbedBuilder();
+        Map<Long, RoleRequest> requests = RoleRequestCommand.getRoleRequests();
+        RoleRequest request = requests.get(event.getMessage().getIdLong());
+        Role requestedRole = event.getJDA().getRoleById(request.getRoleId());
+        User requestedUser = event.getJDA().getUserById(request.getUserId());
         switch(event.getComponentId()){
             case "approve":
                 //Delete message once interacted
