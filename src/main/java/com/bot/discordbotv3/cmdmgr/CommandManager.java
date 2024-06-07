@@ -22,7 +22,7 @@ public class CommandManager {
                     )
                     .addCommands(
                             Commands.slash("rolerequest", "Allows you to request a role")
-                                    .addOptions(RoleOptions.handleRoleOptions())
+                                    .addOptions(RoleOptions.handleRoleOptions(guild))
                     )
                     .addCommands(
                             Commands.slash("play", "Will play any song")
