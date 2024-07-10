@@ -22,10 +22,10 @@
             <id>jitpack</id>
             <url>https://jitpack.io</url>
         </repository>
-        <repository>
-            <id>lavaplayer-snapshots</id>
-            <url>https://maven.lavalink.dev/snapshots</url>
-        </repository>
+<!--        <repository>-->
+<!--            <id>lavaplayer-snapshots</id>-->
+<!--            <url>https://maven.lavalink.dev/snapshots</url>-->
+<!--        </repository>-->
     </repositories>
 
     <dependencies>
@@ -55,7 +55,31 @@
         <dependency>
             <groupId>dev.arbjerg</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>afec211f05c9dcf0b6ee44276a02f0316ea2458a-SNAPSHOT</version>
+            <version>2.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.youtube</groupId>
+            <artifactId>youtube-common</artifactId>
+            <version>1.4.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/youtube-common-1.4.0.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.youtube</groupId>
+            <artifactId>youtube-plugin</artifactId>
+            <version>1.4.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/youtube-plugin-1.4.0.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.youtube</groupId>
+            <artifactId>youtube-v2</artifactId>
+            <version>1.4.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/youtube-v2-1.4.0.jar</systemPath>
         </dependency>
 
         <dependency>

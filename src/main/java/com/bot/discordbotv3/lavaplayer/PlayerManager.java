@@ -26,7 +26,9 @@ public class PlayerManager {
     private AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
 
     private PlayerManager() {
-        AudioSourceManagers.registerRemoteSources(audioPlayerManager);
+//        AudioSourceManagers.registerRemoteSources(audioPlayerManager);
+//        AudioSourceManagers.registerLocalSource(audioPlayerManager);
+        audioPlayerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager());
         AudioSourceManagers.registerLocalSource(audioPlayerManager);
     }
 
@@ -49,6 +51,8 @@ public class PlayerManager {
 
     public void play(Guild guild, String trackURL, InteractionHook hook) {
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        VoiceChannelManager voiceChannelManager = new VoiceChannelManager();
+        voiceChannelManager.startDisconnectTimer(guild);
         audioPlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler() {
 
             @Override
