@@ -23,13 +23,15 @@ public class PlayerManager {
 
     private static PlayerManager INSTANCE;
     private Map<Long, GuildMusicManager> guildMusicManagers = new HashMap<>();
-    private AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
+    private AudioPlayerManager defaultPlayerManager = new DefaultAudioPlayerManager();
+    private AudioPlayerManager youtubePlayerManager = new DefaultAudioPlayerManager();
+
 
     private PlayerManager() {
-//        AudioSourceManagers.registerRemoteSources(audioPlayerManager);
-//        AudioSourceManagers.registerLocalSource(audioPlayerManager);
-        audioPlayerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager());
-        AudioSourceManagers.registerLocalSource(audioPlayerManager);
+        AudioSourceManagers.registerRemoteSources(defaultPlayerManager);
+        youtubePlayerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager());
+        AudioSourceManagers.registerLocalSource(defaultPlayerManager);
+        AudioSourceManagers.registerLocalSource(youtubePlayerManager);
     }
 
     public static PlayerManager get() {
@@ -41,7 +43,7 @@ public class PlayerManager {
 
     public GuildMusicManager getGuildMusicManager(Guild guild) {
         return guildMusicManagers.computeIfAbsent(guild.getIdLong(), (guildId) -> {
-            GuildMusicManager musicManager = new GuildMusicManager(audioPlayerManager, guild);
+            GuildMusicManager musicManager = new GuildMusicManager(defaultPlayerManager, guild);
 
             guild.getAudioManager().setSendingHandler(musicManager.getAudioForwarder());
 
@@ -53,46 +55,89 @@ public class PlayerManager {
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
         VoiceChannelManager voiceChannelManager = new VoiceChannelManager();
         voiceChannelManager.startDisconnectTimer(guild);
-        audioPlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler() {
+        if(trackURL.contains("youtube") || trackURL.contains("youtu.be")){
+            youtubePlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler() {
 
-            @Override
-            public void trackLoaded(AudioTrack track) {
-                guildMusicManager.getTrackScheduler().queue(track);
-                AudioTrackInfo info = track.getInfo();
-                if(guildMusicManager.getTrackScheduler().getQueue().isEmpty()){
-                    AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, true, guildMusicManager.getTrackScheduler().getQueue().size());
-                }else{
-                    AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, false, guildMusicManager.getTrackScheduler().getQueue().size());
-                }
-
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist playlist) {
-                AudioTrack firstTrack = playlist.getTracks().get(0);
-                guildMusicManager.getTrackScheduler().queue(firstTrack);
-                AudioTrackInfo info = firstTrack.getInfo();
-
-                // Queue the remaining tracks
-                List<AudioTrack> tracks = new ArrayList<>(playlist.getTracks());
-                AudioPlaylistEmbed.audioPlaylistEmbedBuilder(info, hook, tracks.size());
-                tracks.remove(0);
-                for(AudioTrack track : tracks){
+                @Override
+                public void trackLoaded(AudioTrack track) {
                     guildMusicManager.getTrackScheduler().queue(track);
+                    AudioTrackInfo info = track.getInfo();
+                    if(guildMusicManager.getTrackScheduler().getQueue().isEmpty()){
+                        AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, true, guildMusicManager.getTrackScheduler().getQueue().size());
+                    }else{
+                        AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, false, guildMusicManager.getTrackScheduler().getQueue().size());
+                    }
+
                 }
-            }
 
-            @Override
-            public void noMatches() {
-                hook.deleteOriginal().and(hook.sendMessage("No matches found for track, Please try again").setEphemeral(true)).queue();
-            }
+                @Override
+                public void playlistLoaded(AudioPlaylist playlist) {
+                    AudioTrack firstTrack = playlist.getTracks().get(0);
+                    guildMusicManager.getTrackScheduler().queue(firstTrack);
+                    AudioTrackInfo info = firstTrack.getInfo();
 
-            @Override
-            public void loadFailed(FriendlyException exception) {
-                hook.deleteOriginal().and(hook.sendMessage("Failed to load track, Please try again").setEphemeral(true)).queue();
-            }
+                    // Queue the remaining tracks
+                    List<AudioTrack> tracks = new ArrayList<>(playlist.getTracks());
+                    AudioPlaylistEmbed.audioPlaylistEmbedBuilder(info, hook, tracks.size());
+                    tracks.remove(0);
+                    for(AudioTrack track : tracks){
+                        guildMusicManager.getTrackScheduler().queue(track);
+                    }
+                }
 
-        });
+                @Override
+                public void noMatches() {
+                    hook.deleteOriginal().and(hook.sendMessage("No matches found for track, Please try again").setEphemeral(true)).queue();
+                }
+
+                @Override
+                public void loadFailed(FriendlyException exception) {
+                    hook.deleteOriginal().and(hook.sendMessage("Failed to load track, Please try again").setEphemeral(true)).queue();
+                }
+
+            });
+        }else {
+            defaultPlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler() {
+
+                @Override
+                public void trackLoaded(AudioTrack track) {
+                    guildMusicManager.getTrackScheduler().queue(track);
+                    AudioTrackInfo info = track.getInfo();
+                    if (guildMusicManager.getTrackScheduler().getQueue().isEmpty()) {
+                        AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, true, guildMusicManager.getTrackScheduler().getQueue().size());
+                    } else {
+                        AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, false, guildMusicManager.getTrackScheduler().getQueue().size());
+                    }
+
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist playlist) {
+                    AudioTrack firstTrack = playlist.getTracks().get(0);
+                    guildMusicManager.getTrackScheduler().queue(firstTrack);
+                    AudioTrackInfo info = firstTrack.getInfo();
+
+                    // Queue the remaining tracks
+                    List<AudioTrack> tracks = new ArrayList<>(playlist.getTracks());
+                    AudioPlaylistEmbed.audioPlaylistEmbedBuilder(info, hook, tracks.size());
+                    tracks.remove(0);
+                    for (AudioTrack track : tracks) {
+                        guildMusicManager.getTrackScheduler().queue(track);
+                    }
+                }
+
+                @Override
+                public void noMatches() {
+                    hook.deleteOriginal().and(hook.sendMessage("No matches found for track, Please try again").setEphemeral(true)).queue();
+                }
+
+                @Override
+                public void loadFailed(FriendlyException exception) {
+                    hook.deleteOriginal().and(hook.sendMessage("Failed to load track, Please try again").setEphemeral(true)).queue();
+                }
+
+            });
+        }
     }
 
     public boolean isPaused(Guild guild){
