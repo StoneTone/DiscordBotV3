@@ -11,6 +11,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class CaseOptions {
+    public static int savedIndex = 0;
+
     public static OptionData handleOptions(){
         OptionData caseOptions = new OptionData(OptionType.STRING, "case", "Pick the case you want to open!", true);
 
@@ -28,15 +30,17 @@ public class CaseOptions {
 
             JSONArray jsonArray = new JSONArray(response.toString());
             int discordLimit = 0;
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jsonObject = jsonArray.getJSONObject(i);
+            while(savedIndex < jsonArray.length() && discordLimit < 23){
+                JSONObject jsonObject = jsonArray.getJSONObject(savedIndex);
                 String name = jsonObject.getString("name");
                 String id = jsonObject.getString("id");
-                if(name.contains("Case") && discordLimit <= 24){
+                if(name.contains("Case")){
                     caseOptions.addChoice(name, id);
                     discordLimit++;
                 }
+                savedIndex++;
             }
+            caseOptions.addChoice("More", String.valueOf(savedIndex));
         } catch (Exception e) {
             e.printStackTrace();
         }

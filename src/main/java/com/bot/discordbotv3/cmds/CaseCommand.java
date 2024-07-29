@@ -1,7 +1,11 @@
 package com.bot.discordbotv3.cmds;
 
+import com.bot.discordbotv3.options.CaseOptions;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.requests.restaction.CommandListUpdateAction;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -29,42 +33,49 @@ public class CaseCommand {
 
     public static void handleCaseCommand(SlashCommandInteractionEvent event){
         String caseId = event.getOption("case").getAsString();
-        JSONObject caseData = fetchCaseData(caseId);
-        String rarity = getRandomRarity();
 
-        event.deferReply().queue(hook -> {
-            CompletableFuture.runAsync(() -> {
-                if (caseData != null) {
-                    String caseName = caseData.getString("name");
-                    JSONObject randomItem = getRandomItemWithRarity(caseData, rarity);
-                    String image = randomItem.getString("image");
-                    EmbedBuilder eb = new EmbedBuilder();
-                    eb.setTitle(event.getUser().getEffectiveName() + " opened a " + caseName + " and found");
-                    if(isStatTrack()){
-                        eb.addField("Item", "Stat-Track " + randomItem.getString("name"),true);
-                    }else{
-                        eb.addField("Item", randomItem.getString("name"), true);
+        try{
+            if(Integer.parseInt(caseId) == CaseOptions.savedIndex){
+                refreshCaseOptions(event);
+            }
+        }catch (NumberFormatException e){
+            JSONObject caseData = fetchCaseData(caseId);
+            String rarity = getRandomRarity();
+
+            event.deferReply().queue(hook -> {
+                CompletableFuture.runAsync(() -> {
+                    if (caseData != null) {
+                        String caseName = caseData.getString("name");
+                        JSONObject randomItem = getRandomItemWithRarity(caseData, rarity);
+                        String image = randomItem.getString("image");
+                        EmbedBuilder eb = new EmbedBuilder();
+                        eb.setTitle(event.getUser().getEffectiveName() + " opened a " + caseName + " and found");
+                        if(isStatTrack()){
+                            eb.addField("Item", "Stat-Track " + randomItem.getString("name"),true);
+                        }else{
+                            eb.addField("Item", randomItem.getString("name"), true);
+                        }
+                        eb.addField("Wear", getWearText(randomWear), true).setColor(getRarityColor(rarity));
+                        eb.addField("Wear Value", String.valueOf(randomWear), true);
+                        eb.addField("Pattern", String.valueOf(patternIndex()), true);
+                        eb.setImage(image);
+
+                        hook.editOriginalEmbeds(eb.build()).queue(
+                                success -> {
+                                    logger.info("Success sending message to channel");
+                                },
+                                failure -> {
+                                    logger.error("Failed to send reply: " + failure.getMessage());
+                                    failure.printStackTrace();
+                                }
+                        );
+
+                    } else {
+                        hook.setEphemeral(true).editOriginal("I'm having issues fetching case data. Please try again").queue();
                     }
-                    eb.addField("Wear", getWearText(randomWear), true).setColor(getRarityColor(rarity));
-                    eb.addField("Wear Value", String.valueOf(randomWear), true);
-                    eb.addField("Pattern", String.valueOf(patternIndex()), true);
-                    eb.setImage(image);
-
-                    hook.editOriginalEmbeds(eb.build()).queue(
-                            success -> {
-                                logger.info("Success sending message to channel");
-                            },
-                            failure -> {
-                                logger.error("Failed to send reply: " + failure.getMessage());
-                                failure.printStackTrace();
-                            }
-                    );
-
-                } else {
-                    event.reply("I'm having issues fetching case data. Please try again").setEphemeral(true).queue();
-                }
+                });
             });
-        });
+        }
     }
 
     private static String getWearText(double randomWear){
@@ -246,6 +257,21 @@ public class CaseCommand {
         JSONObject randomItem = itemsWithRarity.get(random.nextInt(itemsWithRarity.size()));
         randomWear = getWear(randomItem);
         return randomItem;
+    }
+
+    private static void refreshCaseOptions(SlashCommandInteractionEvent event){
+        CaseOptions.savedIndex = event.getOption("case").getAsInt();
+        if(event.getOption("case").getAsInt() > 209){
+            CaseOptions.savedIndex = 0;
+        }
+        OptionData refreshedCase = CaseOptions.handleOptions();
+
+        event.getGuild().upsertCommand(
+                Commands.slash("open", "Pick the case you want to open!")
+                        .addOptions(refreshedCase)
+        ).queue();
+
+        event.reply("Refreshed Options!").setEphemeral(true).queue();
     }
 
 }
