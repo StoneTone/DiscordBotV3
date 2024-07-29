@@ -19,7 +19,7 @@ import java.util.List;
 
 public class LofiCommand {
     private static final Logger logger = LoggerFactory.getLogger(LofiCommand.class);
-    public static void handleLofiCommand(SlashCommandInteractionEvent event, String ytSecret, String option){
+    public static void handleLofiCommand(SlashCommandInteractionEvent event, String option){
         Member member = event.getMember();
         GuildVoiceState memberVoiceState = member.getVoiceState();
 
@@ -47,31 +47,8 @@ public class LofiCommand {
         trackScheduler.getPlayer().stopTrack();
 
         event.deferReply().queue(hook -> {
-            try{
-                YouTube youTube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), null)
-                        .setApplicationName("Discord Bot")
-                        .build();
-
-                YouTube.Search.List search = youTube.search().list("id, snippet");
-                search.setKey(ytSecret);
-                search.setQ("Lofi girl " + option);
-                search.setType("video");
-                search.setMaxResults(1L);
-
-                SearchListResponse response = search.execute();
-                List<SearchResult> results = response.getItems();
-
-                if(results != null && !results.isEmpty()){
-                    String videoId = results.get(0).getId().getVideoId();
-                    String videoUrl = "https://youtu.be/" + videoId;
-                    PlayerManager playerManager = PlayerManager.get();
-                    playerManager.play(event.getGuild(), videoUrl, hook);
-                }else{
-                    event.reply("No search results found for Lofi girl " + option).setEphemeral(true).queue();
-                }
-            }catch(IOException e){
-                logger.error("Error with search on YouTube: " + e);
-            }
+            PlayerManager playerManager = PlayerManager.get();
+            playerManager.play(event.getGuild(), option, hook);
         });
 
     }

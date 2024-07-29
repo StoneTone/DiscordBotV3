@@ -14,9 +14,14 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class Listeners extends ListenerAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(Listeners.class);
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     private final long guildID;
     private Role requestedRole = null;
@@ -38,6 +43,9 @@ public class Listeners extends ListenerAdapter {
         //endregion
         //Logging bot has logged in and is ready
         logger.info(event.getJDA().getSelfUser().getName() + " has logged in!");
+
+        //Scheduler for updating Lofi command options
+        runLofiScheduler(guild);
     }
 
     @Override
@@ -62,14 +70,15 @@ public class Listeners extends ListenerAdapter {
             case "nowplaying" -> NowPlayingCommand.handleNowPlayingCommand(event);
             case "gpt" -> GptCommand.handleGptCommand(event, gptSecret);
             case "lofi" -> {
-                String optionStr = "";
+                String videoURL = "";
                 for(OptionMapping option : event.getOptions()){
-                    optionStr = option.getAsString();
+                    videoURL = option.getAsString();
                 }
-                LofiCommand.handleLofiCommand(event, ytSecret, optionStr);
+                LofiCommand.handleLofiCommand(event, videoURL);
             }
             case "open" -> CaseCommand.handleCaseCommand(event);
             case "embed" -> EmbedCommand.handleEmbedCommand(event);
+//            case "refresh-lofi" -> LofiRefresh.handleRefreshLofi(event);
             default -> event.reply("Invalid slash command!").setEphemeral(true).queue();
         }
     }
@@ -79,6 +88,12 @@ public class Listeners extends ListenerAdapter {
         //region Button Interaction with Requests
         RoleRequestEmbed.handleRoleRequestEmbed(event, guildID);
         //endregion
+    }
+
+    private void runLofiScheduler(Guild guild){
+        scheduler.scheduleAtFixedRate(() -> {
+            LofiRefresh.handleRefreshLofi(guild);
+        },1,2, TimeUnit.HOURS);
     }
 
 }

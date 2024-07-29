@@ -2,7 +2,7 @@
 <configuration scan="true"> <!-- Reloads every minute -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %boldCyan(%-26.-26thread) %boldYellow(%-20.-20logger{0}) %highlight(%-6level) %msg%n%throwable</pattern>
+            <pattern>%d{dd MMM yyyy hh:mm:ss.SSS a} %boldCyan(%-26.-26thread) %boldYellow(%-20.-20logger{0}) %highlight(%-6level) %msg%n%throwable</pattern>
         </encoder>
     </appender>
 
