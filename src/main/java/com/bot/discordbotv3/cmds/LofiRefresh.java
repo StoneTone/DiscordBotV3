@@ -16,8 +16,7 @@ public class LofiRefresh {
         try {
             OptionData refreshedOptions = LofiOptions.handleLofiOptions();
 
-            CommandListUpdateAction commands = guild.updateCommands();
-            commands.addCommands(
+            guild.upsertCommand(
                     Commands.slash("lofi", "Plays lofi radio")
                             .addOptions(refreshedOptions)
             ).queue();
