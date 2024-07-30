@@ -50,6 +50,8 @@ public class LofiOptions {
         search.setChannelId(CHANNEL_ID);
         search.setEventType("live");
         search.setType("video");
+        search.setOrder("date");
+        search.setMaxResults(50L);
         search.setFields("items(id/videoId,snippet/title)");
 
         SearchListResponse searchListResponse = search.execute();
