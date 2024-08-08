@@ -54,25 +54,25 @@
         <dependency>
             <groupId>com.github.youtube</groupId>
             <artifactId>youtube-common</artifactId>
-            <version>1.5.1</version>
+            <version>1.5.2</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/youtube-common-1.5.1.jar</systemPath>
+            <systemPath>${project.basedir}/libs/youtube-common-1.5.2.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>com.github.youtube</groupId>
             <artifactId>youtube-plugin</artifactId>
-            <version>1.5.1</version>
+            <version>1.5.2</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/youtube-plugin-1.5.1.jar</systemPath>
+            <systemPath>${project.basedir}/libs/youtube-plugin-1.5.2.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>com.github.youtube</groupId>
             <artifactId>youtube-v2</artifactId>
-            <version>1.5.1</version>
+            <version>1.5.2</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/youtube-v2-1.5.1.jar</systemPath>
+            <systemPath>${project.basedir}/libs/youtube-v2-1.5.2.jar</systemPath>
         </dependency>
 
         <!-- end youtube source -->
