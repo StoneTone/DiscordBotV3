@@ -1,0 +1,6 @@
+lavalink:
+  server:
+    sources:
+      youtube: false
+
+
