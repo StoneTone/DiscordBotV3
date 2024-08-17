@@ -17,7 +17,11 @@ public class AudioTrackEmbed {
         embedBuilder.setDescription("**Name:** `" + info.title + "`");
         embedBuilder.setThumbnail(info.artworkUrl);
         embedBuilder.addField("Author", info.author, true);
-        embedBuilder.addField("Duration","`" + formatDuration(info.length) + "`", true);
+        if(info.isStream){
+            embedBuilder.addField("Duration","`" + "Live" + "`", true);
+        }else{
+            embedBuilder.addField("Duration","`" + formatDuration(info.length) + "`", true);
+        }
         embedBuilder.addField("Queue", "`" + queueSize + "`", true);
         embedBuilder.addField("Requested By", hook.getInteraction().getUser().getEffectiveName(), true);
         embedBuilder.setUrl(info.uri);
