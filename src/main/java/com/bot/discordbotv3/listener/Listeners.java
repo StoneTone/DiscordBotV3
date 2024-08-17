@@ -43,7 +43,6 @@ public class Listeners extends ListenerAdapter {
         //endregion
         //Logging bot has logged in and is ready
         logger.info(event.getJDA().getSelfUser().getName() + " has logged in!");
-
         //Scheduler for updating Lofi command options
         runLofiScheduler(guild);
     }
@@ -78,7 +77,6 @@ public class Listeners extends ListenerAdapter {
             }
             case "open" -> CaseCommand.handleCaseCommand(event);
             case "embed" -> EmbedCommand.handleEmbedCommand(event);
-//            case "refresh-lofi" -> LofiRefresh.handleRefreshLofi(event);
             default -> event.reply("Invalid slash command!").setEphemeral(true).queue();
         }
     }

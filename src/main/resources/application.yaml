@@ -3,4 +3,6 @@ lavalink:
     sources:
       youtube: false
 
+logging:
+  config: classpath:logback.xml
 
