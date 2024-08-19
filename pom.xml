@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.bot</groupId>
     <artifactId>DiscordBotV3</artifactId>
-    <version>0.5.3-BETA</version>
+    <version>0.5.4-BETA</version>
     <name>DiscordBotV3</name>
     <description>Discord Bot using JDA and Lavaplayer</description>
     <properties>
@@ -54,25 +54,25 @@
         <dependency>
             <groupId>com.github.youtube</groupId>
             <artifactId>youtube-common</artifactId>
-            <version>1.6.0</version>
+            <version>1.7.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/youtube-common-1.6.0.jar</systemPath>
+            <systemPath>${project.basedir}/libs/youtube-common-1.7.0.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>com.github.youtube</groupId>
             <artifactId>youtube-plugin</artifactId>
-            <version>1.6.0</version>
+            <version>1.7.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/youtube-plugin-1.6.0.jar</systemPath>
+            <systemPath>${project.basedir}/libs/youtube-plugin-1.7.0.jar</systemPath>
         </dependency>
 
         <dependency>
             <groupId>com.github.youtube</groupId>
             <artifactId>youtube-v2</artifactId>
-            <version>1.6.0</version>
+            <version>1.7.0</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/libs/youtube-v2-1.6.0.jar</systemPath>
+            <systemPath>${project.basedir}/libs/youtube-v2-1.7.0.jar</systemPath>
         </dependency>
 
         <!-- end youtube source -->
