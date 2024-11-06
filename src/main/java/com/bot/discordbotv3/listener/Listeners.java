@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -91,19 +92,23 @@ public class Listeners extends ListenerAdapter {
         //endregion
     }
 
-    private void runLofiScheduler(Guild guild){
-        LocalTime targetTime = LocalTime.of(1,0);
+    private void runLofiScheduler(Guild guild) {
         LocalDateTime now = LocalDateTime.now();
-        LocalDateTime nextRun = now.with(targetTime);
+        LocalDateTime nextRun = now.withHour(1).withMinute(0).withSecond(0);
 
-        if(now.compareTo(nextRun) > 0){
+        if (now.isAfter(nextRun)) {
             nextRun = nextRun.plusDays(1);
         }
 
-        long initialDely = Duration.between(now, nextRun).toMillis();
+        long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
+
         scheduler.scheduleAtFixedRate(() -> {
-            LofiRefresh.handleRefreshLofi(guild);
-        },initialDely,TimeUnit.DAYS.toMillis(1), TimeUnit.MICROSECONDS);
+            try {
+                LofiRefresh.handleRefreshLofi(guild);
+            } catch (Exception e) {
+                logger.error("Error occurred while refreshing lofi command options: {}", e.getMessage());
+            }
+        }, initialDelay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS);
     }
 
 }
