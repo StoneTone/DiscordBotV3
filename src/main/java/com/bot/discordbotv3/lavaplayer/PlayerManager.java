@@ -12,6 +12,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import dev.lavalink.youtube.clients.AndroidMusic;
+import dev.lavalink.youtube.clients.Web;
 import dev.lavalink.youtube.clients.WebEmbedded;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -31,7 +32,7 @@ public class PlayerManager {
 
     private PlayerManager() {
         AudioSourceManagers.registerRemoteSources(defaultPlayerManager);
-        youtubePlayerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager(false, new AndroidMusic(), new WebEmbedded()));
+        youtubePlayerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager(false, new Web(), new WebEmbedded()));
         AudioSourceManagers.registerLocalSource(defaultPlayerManager);
         AudioSourceManagers.registerLocalSource(youtubePlayerManager);
     }
