@@ -32,7 +32,7 @@ public class PlayerManager {
 
     private PlayerManager() {
         AudioSourceManagers.registerRemoteSources(defaultPlayerManager);
-        youtubePlayerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager(false, new Web(), new WebEmbedded()));
+        youtubePlayerManager.registerSourceManager(new dev.lavalink.youtube.YoutubeAudioSourceManager(false, new AndroidMusic(), new WebEmbedded()));
         AudioSourceManagers.registerLocalSource(defaultPlayerManager);
         AudioSourceManagers.registerLocalSource(youtubePlayerManager);
     }
