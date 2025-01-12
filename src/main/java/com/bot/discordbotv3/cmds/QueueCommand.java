@@ -42,11 +42,16 @@ public class QueueCommand {
         if(queue.isEmpty()) {
             embedBuilder.setDescription("Queue is empty");
         }else{
-            for(int i = 0; i < 24; i++) {
-                AudioTrackInfo info = queue.get(i).getInfo();
-                embedBuilder.addField(i+1 + ":", info.title, false);
-            }
-            if(queue.size() > 25){
+            if(queue.size() < 25){
+                for(int i = 0; i < queue.size(); i++) {
+                    AudioTrackInfo info = queue.get(i).getInfo();
+                    embedBuilder.addField(i+1 + ":", info.title, false);
+                }
+            }else{
+                for(int i = 0; i < 24; i++){
+                    AudioTrackInfo info = queue.get(i).getInfo();
+                    embedBuilder.addField(i+1 + ":", info.title, false);
+                }
                 embedBuilder.addField("Other songs in queue:", "`" + (queue.size() - 25) + "`", false);
             }
         }
