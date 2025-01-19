@@ -1,9 +1,6 @@
 package com.bot.discordbotv3.cmdmgr;
 
-import com.bot.discordbotv3.options.CaseOptions;
-import com.bot.discordbotv3.options.EmbedBuilderOptions;
-import com.bot.discordbotv3.options.LofiOptions;
-import com.bot.discordbotv3.options.RoleOptions;
+import com.bot.discordbotv3.options.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -15,11 +12,6 @@ public class CommandManager {
     public static void registerCommands(Guild guild){
         try{
             guild.updateCommands()
-                    .addCommands(
-                            Commands.slash("sum", "sums two numbers")
-                                    .addOption(OptionType.INTEGER, "num1", "num1", true)
-                                    .addOption(OptionType.INTEGER, "num2", "num2", true)
-                    )
                     .addCommands(
                             Commands.slash("rolerequest", "Allows you to request a role")
                                     .addOptions(RoleOptions.handleRoleOptions(guild))
@@ -67,6 +59,16 @@ public class CommandManager {
                             Commands.slash("embed", "Creates an embed that the bot replies with")
                             .addOptions(EmbedBuilderOptions.TITLE, EmbedBuilderOptions.DESCRIPTION, EmbedBuilderOptions.URL,
                                     EmbedBuilderOptions.AUTHOR, EmbedBuilderOptions.THUMBNAIL, EmbedBuilderOptions.IMAGE)
+                    )
+                    .addCommands(
+                            Commands.slash("activity", "Set the bot's activity")
+                                    .addOption(OptionType.STRING, "activity", "The activity you want the bot to display", true)
+                    )
+                    .addCommands(
+                            Commands.slash("twitch", "Sends a message to a channel when a Twitch streamer goes live")
+                                    .addOption(OptionType.STRING, "channel", "Name of the Twitch Channel you want notifications for", true)
+                                    .addOptions(TwitchTextChannelOptions.handleTwitchTextChannelOptions(guild))
+                                    .addOption(OptionType.STRING, "message", "Set the notification message", true)
                     )
                     .queue();
             logger.info("Commands registered successfully!");

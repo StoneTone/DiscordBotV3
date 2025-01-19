@@ -7,18 +7,15 @@ Welcome to my Java Discord bot application! This bot is built using JDA (Java Di
 ### Discord Portal
 1. Go to the [Discord Developer](https://discord.com/developers)  portal
 2. Click `New Application`
-3. Click `OAuth2` Tab
-4. Click `Reset Secret` and copy the key and paste in your .env file
-5. In the OAuth2 URL Generator, make sure to select (bot, application.commands)
-6. Select administrator permissions
-7. Copy the generated url and paste into your browser and invite it to your server
-8. Move your bot role to the highest priority in your server `Server Settings/Roles`
-
-### OpenAi (ChatGPT)
-1. Go to [OpenAI](https://platform.openai.com/) portal
-2. Create an account (if you don't have one)
-3. Click API Keys
-4. Create a new secret key
+3. Customized however you'd like
+4. Click `Bot` Tab then `Reset Secret`
+5. Copy your token (Keep this secure and do not share with anyone!)
+6. Scroll down to `Privileged Gateway Intents` and enable all intents (This is required for the bot to function properly)
+7. Click `OAuth2` Tab
+8. In the OAuth2 URL Generator, make sure to select (bot, application.commands)
+9. Select administrator permissions
+10. Copy the generated url and paste into your browser and invite it to your server 
+11. Move your bot role to the highest priority in your server `Server Settings/Roles`
 
 ### Google (YouTube Search)
 1. Go to the [Google Cloud](https://console.cloud.google.com) console
@@ -29,28 +26,41 @@ Welcome to my Java Discord bot application! This bot is built using JDA (Java Di
 6. Find and enable ***YouTube Data API v3***
 7. Click `Credentials` then `Create Credentials` and follow the prompts
 
+### OpenAi (ChatGPT) #Not Required ONLY for /gpt command
+1. Go to [OpenAI](https://platform.openai.com/) portal
+2. Create an account (if you don't have one)
+3. Click API Keys
+4. Create a new secret key
+
+### Twitch Notifications #Not Required ONLY for /twitch command
+1. Go to [Twitch Developer](https://dev.twitch.tv/) portal
+2. Create an account (if you don't have one)
+3. Click `Create Application`
+4. Fill out the required fields and click `Create`
+5. Copy your client id and client secret
+
 ### Run Application Locally
 To run this application locally, follow these steps:
 
 1. Clone the repository to your local machine.
-2. Create a `application-lcl.properties` file in the root directory of the project and add to your `.gitignore`
-3. Uncomment the line in your `application.properties` file
-4. Add the following properties to the `lcl.properties` file:
+2. Add the environment variables when running the application
+3. Compile and run the application using Maven.
+
 ```
 DISCORD_TOKEN=your_discord_bot_token
 GUILD_ID=your_server_id
 YOUTUBE_SECRET=your_youtube_api_key
 OWNER_ID=your_discord_id
 GPT_SECRET=your_gpt_secret_key
+TWITCH_CLIENT_ID=your_twitch_client_id
+TWITCH_CLIENT_SECRET=your_twitch_client_secret
 ```
 
 #### Additional Notes
 
-*-to get your guild id and owner id you need to enable developer mode in discord-*
+*-to get your guild id you need to enable developer mode in discord-*
 
 *-Make sure you move your bot to the highest role in the server. `Server Settings/Roles` then click and drag-*
-
-Navigate to `src/main/java/com/bot/discordbotv3/options/RoleOptions` and change the `rolerequest` command options to your roles in your server 
 
 Navigate to `src/main/java/com/bot/discordbotv3/gpt/ChatRequest` and change the system message to configure your own personality to your bot.
 Otherwise, you can leave this blank. 
@@ -65,6 +75,7 @@ Otherwise, you can leave this blank.
 ### Audio Commands
 - **Play:** Play music from YouTube.
 - **Lofi:** Plays lofi from YouTube.
+  - **Note:** This uses a webscraper to get all streams from a youtube channel
 - **Pause:** Pause the currently playing track.
 - **Unpause:** Resume playback after pausing.
 - **Stop:** Stop the playback entirely.
@@ -72,6 +83,11 @@ Otherwise, you can leave this blank.
 - **Queue:** View the list of upcoming tracks.
 - **NowPlaying:** Display the currently playing track.
 - **Leave:** Disconnect the bot from the voice channel.
+
+### Embed Builder
+- **Description:** Create custom embed messages.
+- **Usage:** Use the `/embed` command to create an embed message.
+- **Functionality:** Generates a custom embed message based on user input.
 
 ### ChatGPT Integration
 - **Description:** Interact with ChatGPT directly within the Discord server.
@@ -82,6 +98,12 @@ Otherwise, you can leave this blank.
 - **Description:** Opening Virtual CS2 cases for FREE!
 - **Usage:** Utilize the `/open <case>` command to open cases.
 - **Functionality:** Utilizes CS2 API for all data. Check it out here: [CS2 API](https://github.com/ByMykel/CSGO-API)
+
+### Twitch Notifications
+- **Description:** Get notified when a Twitch streamer goes live.
+- **Usage:** Use the `/twitch <streamer_name> <text_channel> <custom_message>` command to receive notifications.
+- **Functionality:** Sends a message to the specified text channel when the streamer goes live.
+- **Note:** You can also use `/twitchconfig` to remove the streamer from the notification list or edit the custom message.
 
 ## Dependencies
 - Java 17

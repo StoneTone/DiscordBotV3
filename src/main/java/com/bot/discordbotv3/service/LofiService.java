@@ -37,10 +37,11 @@ public class LofiService {
                     new ParameterizedTypeReference<List<LofiTrack>>() {});
 
             if(response.getStatusCode() == HttpStatus.OK && response.getBody() != null){
+                logger.info("Successfully connected to Lofi Service");
                 return response.getBody();
             }
         }catch(RestClientException e){
-            logger.error("Failed to fetch lofi tracks: " + e.getMessage(), e);
+            logger.error("Error connecting to Lofi Service. Either the service is down or is not running. Please check the service.");
         }
         return new ArrayList<>();
     }

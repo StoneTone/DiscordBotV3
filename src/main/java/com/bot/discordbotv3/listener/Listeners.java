@@ -4,6 +4,7 @@ package com.bot.discordbotv3.listener;
 import com.bot.discordbotv3.embed.RoleRequestEmbed;
 import com.bot.discordbotv3.cmdmgr.CommandManager;
 import com.bot.discordbotv3.cmds.*;
+import com.bot.discordbotv3.service.TwitchService;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -14,9 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,12 +30,14 @@ public class Listeners extends ListenerAdapter {
     private Role requestedRole = null;
     private final String ytSecret;
     private final String gptSecret;
+    private final TwitchService twitchService;
 
 
-    public Listeners(long guildID, String ytSecret, String gptSecret) {
+    public Listeners(long guildID, String ytSecret, String gptSecret, TwitchService twitchService) {
         this.guildID = guildID;
         this.ytSecret = ytSecret;
         this.gptSecret = gptSecret;
+        this.twitchService = twitchService;
     }
 
     @Override
@@ -79,6 +80,9 @@ public class Listeners extends ListenerAdapter {
                 }
                 LofiCommand.handleLofiCommand(event, videoURL);
             }
+            case "activity" -> ActivityCommand.handleActivityCommand(event);
+            case "twitch" -> TwitchCommand.handleTwitchCommand(event, twitchService);
+            case "twitchconfig" -> TwitchConfigCommand.handleTwitchConfigCommand(event, twitchService);
             case "open" -> CaseCommand.handleCaseCommand(event);
             case "embed" -> EmbedCommand.handleEmbedCommand(event);
             default -> event.reply("Invalid slash command!").setEphemeral(true).queue();
