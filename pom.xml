@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.bot</groupId>
     <artifactId>DiscordBotV3</artifactId>
-    <version>0.6.0-BETA</version>
+    <version>1.0.0-BETA</version>
     <name>DiscordBotV3</name>
     <description>Discord Bot using JDA and Lavaplayer</description>
     <properties>
@@ -82,6 +82,12 @@
         </dependency>
 
         <!-- end youtube source -->
+
+        <dependency>
+            <groupId>com.github.twitch4j</groupId>
+            <artifactId>twitch4j</artifactId>
+            <version>1.23.0</version>
+        </dependency>
 
         <dependency>
             <groupId>com.google.apis</groupId>
