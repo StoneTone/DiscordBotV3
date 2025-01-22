@@ -8,12 +8,18 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 public class TwitchCommand {
-    public static void handleTwitchCommand(SlashCommandInteractionEvent event, TwitchService twitchService) {
+    public static void handleTwitchCommand(SlashCommandInteractionEvent event, TwitchService twitchService){
         if(event.getInteraction().getMember().isOwner()){
             String channelName = event.getOption("channel").getAsString();
             String textChannelId = event.getOption("textchannel").getAsString();
             String message = event.getOption("message").getAsString();
-            twitchService.listenToChannel(channelName, textChannelId, message);
+
+            try{
+                twitchService.listenToChannel(channelName, textChannelId, message);
+            }catch (Exception e){
+                event.reply("Error listening to channel: " + channelName + ", either the channel does not exist or is invalid! ").setEphemeral(true).queue();
+                return;
+            }
 
             event.reply("Now listening to Twitch channel: " + channelName).setEphemeral(true).queue();
 
