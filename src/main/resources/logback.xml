@@ -18,6 +18,8 @@
     <!-- lavalink -->
     <logger name="lavalink.server.io.SocketContext" level="info"/>
 
+    <logger name="com.netflix.config.sources.URLConfigurationSource" level="error"/>
+
     <!-- All the remaining loggers -->
     <root level="info">
         <appender-ref ref="STDOUT"/>

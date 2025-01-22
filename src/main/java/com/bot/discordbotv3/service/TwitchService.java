@@ -27,10 +27,6 @@ public class TwitchService {
         setupEventListeners();
     }
 
-    public HashMap<String, Map<String, String>> getChannelMap() {
-        return channelMap;
-    }
-
     private void setupEventListeners() {
         twitchClient.getEventManager().onEvent(ChannelGoLiveEvent.class, this::handleStreamUp);
     }
@@ -72,19 +68,16 @@ public class TwitchService {
         return embed.build();
     }
 
-    public void listenToChannel(String channelName, String textChannelId, String message) {
-        twitchClient.getClientHelper().enableStreamEventListener(channelName);
-        if(!channelMap.containsKey(textChannelId)){
-            HashMap<String,String> innerChannel = new HashMap<>();
-            innerChannel.put(channelName, message);
-            channelMap.put(textChannelId, innerChannel);
-        }else{
-            Map<String, String> twitchMap = channelMap.get(textChannelId);
-            if(twitchMap.containsKey(channelName) && !twitchMap.get(channelName).equals(message)){
-                twitchMap.put(channelName, message);
-            }
+    public void listenToChannel(String channelName, String textChannelId, String message) throws Exception {
+        try{
+            twitchClient.getClientHelper().enableStreamEventListener(channelName);
+            channelMap.computeIfAbsent(textChannelId, k -> new HashMap<>())
+                    .put(channelName, message);
+            logger.info("Started listening to Twitch channel: {}", channelName);
+        }catch (Exception e){
+            logger.error("There was an error listening to Twitch channel: {}", channelName);
+            throw new RuntimeException("Invalid Twitch channel name");
         }
-        logger.info("Started listening to Twitch channel: {}", channelName);
     }
 
     public void stopListeningToChannel(String channelName) {
