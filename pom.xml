@@ -22,6 +22,16 @@
             <id>jitpack</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>arbjergDev-snapshots</id>
+            <name>Lavalink Repository</name>
+            <url>https://maven.lavalink.dev/snapshots</url>
+        </repository>
+        <repository>
+            <id>arbjergDev-releases</id>
+            <name>Lavalink Repository</name>
+            <url>https://maven.lavalink.dev/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -58,28 +68,28 @@
         <!-- youtube source libs-->
 
         <dependency>
-            <groupId>com.github.youtube</groupId>
-            <artifactId>youtube-common</artifactId>
-            <version>1.11.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/youtube-common-1.11.5.jar</systemPath>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.youtube</groupId>
+            <groupId>dev.lavalink.youtube</groupId>
             <artifactId>youtube-plugin</artifactId>
-            <version>1.11.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/youtube-plugin-1.11.5.jar</systemPath>
+            <version>3e4fb4dd88fcd7f18f71807cdfd38a6cf27fe023</version>
         </dependency>
 
         <dependency>
-            <groupId>com.github.youtube</groupId>
-            <artifactId>youtube-v2</artifactId>
+            <groupId>dev.lavalink.youtube</groupId>
+            <artifactId>common</artifactId>
             <version>1.11.5</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/youtube-v2-1.11.5.jar</systemPath>
         </dependency>
+
+        <dependency>
+            <groupId>dev.lavalink.youtube</groupId>
+            <artifactId>v2</artifactId>
+            <version>1.11.5</version>
+        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>dev.lavalink.youtube</groupId>-->
+<!--            <artifactId>youtube-plugin</artifactId>-->
+<!--            <version>1.11.5</version>-->
+<!--        </dependency>-->
 
         <!-- end youtube source -->
 

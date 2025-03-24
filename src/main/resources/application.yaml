@@ -6,3 +6,5 @@ lavalink:
 logging:
   config: classpath:logback.xml
 
+server:
+  port: 8081
