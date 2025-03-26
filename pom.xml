@@ -70,26 +70,21 @@
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>youtube-plugin</artifactId>
-            <version>3e4fb4dd88fcd7f18f71807cdfd38a6cf27fe023</version>
+            <version>1.12.0</version>
         </dependency>
 
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>common</artifactId>
-            <version>1.11.5</version>
+            <version>1.12.0</version>
         </dependency>
 
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>v2</artifactId>
-            <version>1.11.5</version>
+            <version>1.12.0</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>dev.lavalink.youtube</groupId>-->
-<!--            <artifactId>youtube-plugin</artifactId>-->
-<!--            <version>1.11.5</version>-->
-<!--        </dependency>-->
 
         <!-- end youtube source -->
 
