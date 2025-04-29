@@ -70,7 +70,7 @@
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>youtube-plugin</artifactId>
-            <version>1.13.0</version>
+            <version>b4f2c98ce72ff7fc2affa449456d47757352f5a5</version>
         </dependency>
 
         <dependency>
