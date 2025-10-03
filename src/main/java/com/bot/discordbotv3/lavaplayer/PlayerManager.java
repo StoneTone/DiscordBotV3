@@ -16,6 +16,8 @@ import dev.lavalink.youtube.clients.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,12 +42,36 @@ public class PlayerManager {
     }
 
     private AudioPlayerManager createYoutubePlayerManager() {
+        String cipherURL = isApiAvailable();
         YoutubeSourceOptions sourceOptions = new YoutubeSourceOptions()
-                .setRemoteCipherUrl("https://cipher.kikkia.dev/api", "");
+                .setRemoteCipherUrl(cipherURL, "");
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         playerManager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, new WebEmbedded(), new Web()));
         AudioSourceManagers.registerLocalSource(playerManager);
         return playerManager;
+    }
+
+    private String isApiAvailable() {
+        String localApiUrl = "http://yt-cipher:8001";
+        String publicApiUrl = "https://cipher.kikkia.dev/api";
+
+        try {
+            URL url = new URL(localApiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.setConnectTimeout(200);
+            connection.setReadTimeout(200);
+
+            connection.getResponseCode();
+            connection.disconnect();
+
+            return localApiUrl;
+        } catch (Exception e) {
+            // Only timeouts and connection refused will throw exceptions
+            System.out.println("API unreachable: " + e.getMessage());
+            System.out.println("Defaulting to public cipher api");
+            return publicApiUrl;
+        }
     }
 
     public static PlayerManager get() {
