@@ -11,6 +11,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.YoutubeSourceOptions;
 import dev.lavalink.youtube.clients.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -39,11 +40,10 @@ public class PlayerManager {
     }
 
     private AudioPlayerManager createYoutubePlayerManager() {
-        ClientOptions options = new ClientOptions();
-        options.setSearching(false);
-        options.setPlaylistLoading(false);
+        YoutubeSourceOptions sourceOptions = new YoutubeSourceOptions()
+                .setRemoteCipherUrl("https://cipher.kikkia.dev/api", "");
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-        playerManager.registerSourceManager(new YoutubeAudioSourceManager(false, new WebEmbedded(options), new MWeb(), new Web()));
+        playerManager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, new WebEmbedded(), new Web()));
         AudioSourceManagers.registerLocalSource(playerManager);
         return playerManager;
     }

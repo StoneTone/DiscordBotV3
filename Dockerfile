@@ -2,6 +2,6 @@ FROM openjdk:17-slim
 
 WORKDIR /app
 
-COPY target/DiscordBotV3-1.0.6-BETA.jar app.jar
+COPY target/*.jar app.jar
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

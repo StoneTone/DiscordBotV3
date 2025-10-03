@@ -27,7 +27,7 @@ public class LofiService {
     }
 
     public static List<LofiTrack> getLofiTracks(){
-        String endpoint = "http://lofiscrap:8080/v1/lofi";
+        String endpoint = "http://lofiscrap:8080/v1/lofi"; //need to change for global
 
         try{
             ResponseEntity<List<LofiTrack>> response = restTemplate.exchange(
