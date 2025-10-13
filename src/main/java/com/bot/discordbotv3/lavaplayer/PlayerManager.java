@@ -44,7 +44,7 @@ public class PlayerManager {
     private AudioPlayerManager createYoutubePlayerManager() {
         String cipherURL = isApiAvailable();
         YoutubeSourceOptions sourceOptions = new YoutubeSourceOptions()
-                .setRemoteCipherUrl(cipherURL, "");
+                .setRemoteCipher(cipherURL, "","");
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         playerManager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, new WebEmbedded(), new Web()));
         AudioSourceManagers.registerLocalSource(playerManager);
