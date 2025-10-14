@@ -15,7 +15,7 @@ public class AudioTrackEmbed {
             embedBuilder.setTitle("Added to Queue");
         }
         embedBuilder.setDescription("**Name:** `" + info.title + "`");
-        embedBuilder.setThumbnail(info.artworkUrl);
+        embedBuilder.setImage(info.artworkUrl);
         embedBuilder.addField("Author", info.author, true);
         if(info.isStream){
             embedBuilder.addField("Duration","`" + "Live" + "`", true);

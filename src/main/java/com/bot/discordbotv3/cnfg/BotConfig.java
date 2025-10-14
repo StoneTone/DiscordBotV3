@@ -25,9 +25,6 @@ public class BotConfig {
     @Value("${GUILD_ID}")
     private long guildId;
 
-    @Value("${YOUTUBE_SECRET:#{null}}")
-    private String youtubeSecret;
-
     @Value("${GPT_SECRET:#{null}}")
     private String gptSecret;
 
@@ -35,7 +32,7 @@ public class BotConfig {
     public JDA jda(TwitchService twitchService) throws LoginException {
         JDABuilder builder = JDABuilder.createDefault(discordToken);
         builder.enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS));
-        builder.addEventListeners(new Listeners(guildId, youtubeSecret, gptSecret, twitchService));
+        builder.addEventListeners(new Listeners(guildId, gptSecret, twitchService));
         JDA jda =  builder.build();
         twitchService.setJda(jda);
         return jda;
@@ -43,7 +40,7 @@ public class BotConfig {
 
     @PostConstruct
     public void init() {
-        if (gptSecret == null || youtubeSecret == null) {
+        if (gptSecret == null) {
             log.warn("Either GPT or YouTube secret is missing, some features may not work!");
         }
     }

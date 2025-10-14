@@ -2,6 +2,7 @@ package com.bot.discordbotv3.lavaplayer;
 
 import com.bot.discordbotv3.embed.AudioPlaylistEmbed;
 import com.bot.discordbotv3.embed.AudioTrackEmbed;
+import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -12,9 +13,13 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.YoutubeSourceOptions;
-import dev.lavalink.youtube.clients.*;
+import dev.lavalink.youtube.clients.AndroidVrWithThumbnail;
+import dev.lavalink.youtube.clients.WebEmbeddedWithThumbnail;
+import dev.lavalink.youtube.clients.WebWithThumbnail;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.InteractionHook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -24,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PlayerManager {
+    private static final Logger log = LoggerFactory.getLogger(PlayerManager.class);
     private static PlayerManager INSTANCE;
     private final Map<Long, GuildMusicManager> guildMusicManagers = new HashMap<>();
     private final AudioPlayerManager defaultPlayerManager;
@@ -36,6 +42,8 @@ public class PlayerManager {
 
     private AudioPlayerManager createDefaultPlayerManager() {
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
+        playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.HIGH);
+        playerManager.getConfiguration().setOpusEncodingQuality(10);
         AudioSourceManagers.registerRemoteSources(playerManager);
         AudioSourceManagers.registerLocalSource(playerManager);
         return playerManager;
@@ -44,9 +52,12 @@ public class PlayerManager {
     private AudioPlayerManager createYoutubePlayerManager() {
         String cipherURL = isApiAvailable();
         YoutubeSourceOptions sourceOptions = new YoutubeSourceOptions()
+                .setAllowSearch(true)
                 .setRemoteCipher(cipherURL, "","");
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-        playerManager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, new WebEmbedded(), new Web()));
+        playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.HIGH);
+        playerManager.getConfiguration().setOpusEncodingQuality(10);
+        playerManager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, new WebEmbeddedWithThumbnail(), new WebWithThumbnail(), new AndroidVrWithThumbnail()));
         AudioSourceManagers.registerLocalSource(playerManager);
         return playerManager;
     }
@@ -68,8 +79,8 @@ public class PlayerManager {
             return localApiUrl;
         } catch (Exception e) {
             // Only timeouts and connection refused will throw exceptions
-            System.out.println("API unreachable: " + e.getMessage());
-            System.out.println("Defaulting to public cipher api");
+            log.warn("API Unreachable: {}", e.getMessage());
+            log.info("Defaulting to Public Cipher");
             return publicApiUrl;
         }
     }
@@ -98,7 +109,7 @@ public class PlayerManager {
     }
 
     private boolean isYoutubeURL(String url) {
-        return url.contains("youtube") || url.contains("youtu.be");
+        return url.contains("youtube") || url.contains("youtu.be") || url.startsWith("ytsearch:") || url.startsWith("ytmsearch:");
     }
 
     private void loadAndPlay(AudioPlayerManager playerManager, GuildMusicManager musicManager, String trackURL, InteractionHook hook) {
@@ -115,12 +126,24 @@ public class PlayerManager {
 
             @Override
             public void noMatches() {
-                hook.deleteOriginal().and(hook.sendMessage("No matches found for track, Please try again").setEphemeral(true)).queue();
+                hook.editOriginal("🔍 No matches found. Try a different search term.").queue(
+                    success -> {},
+                    error -> hook.sendMessage("🔍 No matches found").setEphemeral(true).queue()
+                );
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                hook.deleteOriginal().and(hook.sendMessage("Failed to load track, Please try again").setEphemeral(true)).queue();
+                String errorMessage = switch (exception.severity) {
+                    case COMMON -> "Track unavailable. Please try a different song.";
+                    case SUSPICIOUS -> "Unable to load track due to rate limiting. Try again later.";
+                    case FAULT -> "YouTube service error. Please try again.";
+                };
+                
+                hook.editOriginal("❌ " + errorMessage).queue(
+                    success -> {},
+                    error -> hook.sendMessage("❌ Failed to load track").setEphemeral(true).queue()
+                );
             }
         });
     }
@@ -138,12 +161,17 @@ public class PlayerManager {
         musicManager.getTrackScheduler().queue(firstTrack);
         AudioTrackInfo info = firstTrack.getInfo();
 
-        // Queue the remaining tracks
-        List<AudioTrack> tracks = new ArrayList<>(playlist.getTracks());
-        AudioPlaylistEmbed.audioPlaylistEmbedBuilder(info, hook, tracks.size());
-        tracks.remove(0);
-        for(AudioTrack track : tracks){
-            musicManager.getTrackScheduler().queue(track);
+        if (playlist.isSearchResult()) {
+            boolean isQueueEmpty = musicManager.getTrackScheduler().getQueue().isEmpty();
+            AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, isQueueEmpty,
+                    musicManager.getTrackScheduler().getQueue().size());
+        } else {
+            List<AudioTrack> tracks = new ArrayList<>(playlist.getTracks());
+            AudioPlaylistEmbed.audioPlaylistEmbedBuilder(info, hook, tracks.size());
+            tracks.remove(0);
+            for(AudioTrack track : tracks){
+                musicManager.getTrackScheduler().queue(track);
+            }
         }
     }
 

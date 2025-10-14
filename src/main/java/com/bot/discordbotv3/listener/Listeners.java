@@ -5,6 +5,7 @@ import com.bot.discordbotv3.embed.RoleRequestEmbed;
 import com.bot.discordbotv3.cmdmgr.CommandManager;
 import com.bot.discordbotv3.cmds.*;
 import com.bot.discordbotv3.service.TwitchService;
+import jakarta.annotation.PreDestroy;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -28,14 +29,12 @@ public class Listeners extends ListenerAdapter {
 
     private final long guildID;
     private Role requestedRole = null;
-    private final String ytSecret;
     private final String gptSecret;
     private final TwitchService twitchService;
 
 
-    public Listeners(long guildID, String ytSecret, String gptSecret, TwitchService twitchService) {
+    public Listeners(long guildID, String gptSecret, TwitchService twitchService) {
         this.guildID = guildID;
-        this.ytSecret = ytSecret;
         this.gptSecret = gptSecret;
         this.twitchService = twitchService;
     }
@@ -64,7 +63,7 @@ public class Listeners extends ListenerAdapter {
                 }
                 RoleRequestCommand.handleRoleRequestCommand(event, requestedRole);
             }
-            case "play" -> PlayCommand.handlePlayCommand(event, ytSecret);
+            case "play" -> PlayCommand.handlePlayCommand(event);
             case "pause" -> PauseCommand.handlePauseCommand(event);
             case "unpause" -> UnPauseCommand.handleUnPauseCommand(event);
             case "leave" -> LeaveCommand.handleLeaveCommand(event);
@@ -114,5 +113,21 @@ public class Listeners extends ListenerAdapter {
             }
         }, initialDelay, TimeUnit.DAYS.toMillis(1), TimeUnit.MILLISECONDS);
     }
+
+    @PreDestroy
+    public void shutdown() {
+        if (!scheduler.isShutdown()) {
+            scheduler.shutdown();
+            try {
+                if (!scheduler.awaitTermination(60, TimeUnit.SECONDS)) {
+                    scheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                scheduler.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
 
 }
