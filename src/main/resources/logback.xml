@@ -12,9 +12,8 @@
     <logger name="com.sedmelluq.discord.lavaplayer" level="info"/>
     <logger name="com.sedmelluq.discord.lavaplayer.tools.ExceptionTools" level="info"/>
     <!-- youtube-plugin -->
-    <logger name="com.github.youtube.plugin" level="info"/>
-    <logger name="com.github.youtube.common" level="info"/>
-    <logger name="com.github.youtube.v2" level="info"/>
+    <logger name="dev.lavalink.youtube" level="info"/>
+    <logger name="dev.lavalink.youtube.clients" level="info"/>
     <!-- lavalink -->
     <logger name="lavalink.server.io.SocketContext" level="info"/>
 

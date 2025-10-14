@@ -2,16 +2,16 @@ package com.bot.discordbotv3.cmds;
 
 import com.bot.discordbotv3.vo.RoleRequest;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-
 
 public class RoleRequestCommand {
     private static final Logger logger = LoggerFactory.getLogger(RoleRequestCommand.class);
@@ -33,9 +33,11 @@ public class RoleRequestCommand {
                 logger.error("Admin text channel either does not exist or there is a problem!");
                 hook.editOriginal("There was an error processing your request").queue();
             }else{
-                adminChannel.sendMessageEmbeds(eb.build()).setActionRow(
-                        Button.success("approve", "Approve"),
-                        Button.danger("decline", "Decline")
+                adminChannel.sendMessageEmbeds(eb.build()).setComponents(
+                        ActionRow.of(
+                                Button.success("approve", "Approve"),
+                                Button.danger("decline", "Decline")
+                        )
                 ).queue(message -> {
                     requests.put(message.getIdLong(), roleRequest);
                 });
