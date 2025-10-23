@@ -17,7 +17,7 @@ public class CaseOptions {
         OptionData caseOptions = new OptionData(OptionType.STRING, "case", "Pick the case you want to open!", true);
 
         try {
-            HttpURLConnection conn = (HttpURLConnection) new URL("https://bymykel.github.io/CSGO-API/api/en/crates.json").openConnection();
+            HttpURLConnection conn = (HttpURLConnection) new URL("https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/crates.json").openConnection();
             conn.setRequestMethod("GET");
 
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));

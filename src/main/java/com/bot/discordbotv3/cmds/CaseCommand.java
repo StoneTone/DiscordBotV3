@@ -169,7 +169,7 @@ public class CaseCommand {
 
     private static JSONObject fetchCaseData(String caseId) {
         try {
-            URL url = new URL("https://bymykel.github.io/CSGO-API/api/en/crates.json");
+            URL url = new URL("https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/crates.json");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
@@ -200,7 +200,7 @@ public class CaseCommand {
 
     private static JSONObject fetchSkinData(String skinId) {
         try {
-            URL url = new URL("https://bymykel.github.io/CSGO-API/api/en/skins.json");
+            URL url = new URL("https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/skins.json");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
 
