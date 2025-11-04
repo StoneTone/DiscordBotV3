@@ -17,15 +17,6 @@ Welcome to my Java Discord bot application! This bot is built using JDA (Java Di
 10. Copy the generated url and paste into your browser and invite it to your server 
 11. Move your bot role to the highest priority in your server `Server Settings/Roles`
 
-### Google (YouTube Search)
-1. Go to the [Google Cloud](https://console.cloud.google.com) console
-2. Create an account (if you don't have one)
-3. Create a project
-4. Go to `API & Services`
-5. Click `Library`
-6. Find and enable ***YouTube Data API v3***
-7. Click `Credentials` then `Create Credentials` and follow the prompts
-
 ### OpenAi (ChatGPT) #Not Required ONLY for /gpt command
 1. Go to [OpenAI](https://platform.openai.com/) portal
 2. Create an account (if you don't have one)
