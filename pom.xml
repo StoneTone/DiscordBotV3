@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.bot</groupId>
     <artifactId>DiscordBotV3</artifactId>
-    <version>1.1.1-BETA</version>
+    <version>1.1.2-BETA</version>
     <name>DiscordBotV3</name>
     <description>Discord Bot using JDA and Lavaplayer</description>
     <properties>
@@ -68,19 +68,19 @@
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>youtube-plugin</artifactId>
-            <version>1.15.0</version>
+            <version>1.16.0</version>
         </dependency>
 
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>common</artifactId>
-            <version>1.15.0</version>
+            <version>1.16.0</version>
         </dependency>
 
         <dependency>
             <groupId>dev.lavalink.youtube</groupId>
             <artifactId>v2</artifactId>
-            <version>1.15.0</version>
+            <version>1.16.0</version>
         </dependency>
 
 
