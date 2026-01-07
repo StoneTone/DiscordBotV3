@@ -25,17 +25,6 @@ public class CaseCommand {
     private static final double EXCEEDINGLY_RARE_PROB = 0.0026;
     private static final double STAT_TRACK_PROB = 0.1;
 
-    // Custom thread pool for better performance
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(
-            Runtime.getRuntime().availableProcessors(),
-            r -> {
-                Thread t = new Thread(r);
-                t.setName("CaseCommand-Worker");
-                t.setDaemon(true);
-                return t;
-            }
-    );
-
     // Caches
     private static volatile Map<String, JSONObject> cratesCache;
     private static volatile Map<String, JSONObject> skinsCache;
@@ -138,7 +127,6 @@ public class CaseCommand {
         }
     }
 
-
     public static void handleAutocomplete(CommandAutoCompleteInteractionEvent event) {
         if (!event.getFocusedOption().getName().equals("case")) return;
 
@@ -164,8 +152,6 @@ public class CaseCommand {
     public static void handleCaseCommand(SlashCommandInteractionEvent event) {
         ensureCacheInitialized();
 
-        long startTime = System.currentTimeMillis();
-
         String input = event.getOption("case").getAsString();
 
         String caseId = cratesCache.containsKey(input)
@@ -173,7 +159,7 @@ public class CaseCommand {
                 : caseNameToIdCache.get(input.toLowerCase());
 
         if (caseId == null) {
-            event.reply("Case not found! Please use the autocomplete dropdown to select a case.").setEphemeral(true).queue();
+            event.reply("Case not found!").setEphemeral(true).queue();
             return;
         }
 
@@ -187,7 +173,7 @@ public class CaseCommand {
         ItemResult result = getRandomItemWithRarity(caseId, rarity);
 
         if (result == null) {
-            event.reply("Error getting item from case!").setEphemeral(true).queue();
+            event.reply("Error getting item!").setEphemeral(true).queue();
             return;
         }
 
@@ -201,13 +187,15 @@ public class CaseCommand {
         String wearText = getWearText(wear);
         int color = getRarityColor(rarity);
 
-        EmbedBuilder eb = new EmbedBuilder();
         boolean isRareSpecialItem = rarity.equals("Rare Special Item");
+
+        EmbedBuilder eb = new EmbedBuilder();
         if (isRareSpecialItem) {
             eb.setTitle(event.getUser().getEffectiveName() + " opened a " + caseName + " and found a RARE SPECIAL ITEM!");
         } else {
             eb.setTitle(event.getUser().getEffectiveName() + " opened a " + caseName + " and found");
         }
+
         eb.addField("Item", (isStatTrack ? "StatTrak™ " : "") + itemName, true);
         eb.addField("Wear", wearText, true);
         eb.setColor(color);
@@ -215,27 +203,17 @@ public class CaseCommand {
         eb.addField("Pattern", String.valueOf(pattern), true);
         eb.setImage(image);
 
-        long processingTime = System.currentTimeMillis() - startTime;
-        logger.debug("Processing took {}ms", processingTime);
-
         event.replyEmbeds(eb.build()).queue(
                 success -> {
-                    logger.debug("Command completed in {}ms total", System.currentTimeMillis() - startTime);
-
-                    // Pin the message if it's a Rare Special Item
                     if (isRareSpecialItem) {
                         success.retrieveOriginal().queue(
-                                message -> {
-                                    message.pin().queue(
-                                            pinSuccess -> logger.info("Pinned rare item: {} by {}", itemName, event.getUser().getEffectiveName()),
-                                            pinFailure -> logger.error("Failed to pin message: {}", pinFailure.getMessage())
-                                    );
-                                },
-                                retrieveFailure -> logger.error("Failed to retrieve message for pinning: {}", retrieveFailure.getMessage())
+                                message -> message.pin().queue(
+                                        pinSuccess -> logger.info("Pinned rare item: {}", itemName),
+                                        pinFailure -> logger.error("Failed to pin", pinFailure)
+                                )
                         );
                     }
-                },
-                failure -> logger.error("Failed to send reply", failure)
+                }
         );
     }
 
