@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.bot</groupId>
     <artifactId>DiscordBotV3</artifactId>
-    <version>1.2.1-BETA</version>
+    <version>1.2.2-BETA</version>
     <name>DiscordBotV3</name>
     <description>Discord Bot using JDA and Lavaplayer</description>
     <properties>
@@ -54,7 +54,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>6.0.0</version>
+            <version>6.2.1</version>
         </dependency>
 
         <dependency>
