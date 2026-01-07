@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 public class CommandManager {
     private static final Logger logger = LoggerFactory.getLogger(CommandManager.class);
+
     public static void registerCommands(Guild guild){
         try{
             guild.updateCommands()
@@ -49,16 +50,17 @@ public class CommandManager {
                     )
                     .addCommands(
                             Commands.slash("lofi", "Plays lofi radio")
-                            .addOptions(LofiOptions.handleLofiOptions())
+                                    .addOptions(LofiOptions.handleLofiOptions())
                     )
+                    // UPDATED: Autocomplete enabled (last parameter = true)
                     .addCommands(
                             Commands.slash("open", "Open any CS2 Case for free!")
-                            .addOptions(CaseOptions.handleOptions())
+                                    .addOption(OptionType.STRING, "case", "Search for a case to open", true, true)
                     )
                     .addCommands(
                             Commands.slash("embed", "Creates an embed that the bot replies with")
-                            .addOptions(EmbedBuilderOptions.TITLE, EmbedBuilderOptions.DESCRIPTION, EmbedBuilderOptions.URL,
-                                    EmbedBuilderOptions.AUTHOR, EmbedBuilderOptions.THUMBNAIL, EmbedBuilderOptions.IMAGE)
+                                    .addOptions(EmbedBuilderOptions.TITLE, EmbedBuilderOptions.DESCRIPTION, EmbedBuilderOptions.URL,
+                                            EmbedBuilderOptions.AUTHOR, EmbedBuilderOptions.THUMBNAIL, EmbedBuilderOptions.IMAGE)
                     )
                     .addCommands(
                             Commands.slash("activity", "Set the bot's activity")
@@ -75,6 +77,5 @@ public class CommandManager {
         }catch (Exception ex){
             logger.error("There was an error with registering commands: " + ex);
         }
-
     }
 }
