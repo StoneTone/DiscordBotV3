@@ -7,6 +7,8 @@ import com.bot.discordbotv3.cmds.*;
 import com.bot.discordbotv3.service.TwitchService;
 import jakarta.annotation.PreDestroy;
 import net.dv8tion.jda.api.entities.*;
+
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
@@ -49,6 +51,14 @@ public class Listeners extends ListenerAdapter {
         logger.info(event.getJDA().getSelfUser().getName() + " has logged in!");
         //Scheduler for updating Lofi command options
         runLofiScheduler(guild);
+    }
+
+    // NEW: Add autocomplete handler
+    @Override
+    public void onCommandAutoCompleteInteraction(@NotNull CommandAutoCompleteInteractionEvent event) {
+        if (event.getName().equals("open")) {
+            CaseCommand.handleAutocomplete(event);
+        }
     }
 
     @Override
@@ -128,6 +138,4 @@ public class Listeners extends ListenerAdapter {
             }
         }
     }
-
-
 }
