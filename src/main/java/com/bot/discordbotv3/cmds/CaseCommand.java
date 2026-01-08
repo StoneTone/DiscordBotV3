@@ -199,7 +199,12 @@ public class CaseCommand {
         eb.addField("Item", (isStatTrack ? "StatTrak™ " : "") + itemName, true);
         eb.addField("Wear", wearText, true);
         eb.setColor(color);
-        eb.addField("Wear Value", String.format("%.8f", wear), true);
+        if(wear == -1.0){
+            eb.addField("Wear Value", "Vanilla", true);
+        }else{
+            eb.addField("Wear Value", String.format("%.8f", wear), true);
+        }
+
         eb.addField("Pattern", String.valueOf(pattern), true);
         eb.setImage(image);
 
@@ -218,6 +223,7 @@ public class CaseCommand {
     }
 
     private static String getWearText(double randomWear) {
+        if(randomWear == -1.0) return "Vanilla";
         if (randomWear < 0.07) return "Factory New";
         if (randomWear < 0.15) return "Minimal Wear";
         if (randomWear < 0.38) return "Field-Tested";
@@ -238,6 +244,8 @@ public class CaseCommand {
             } catch (Exception e) {
                 logger.error("Error calculating wear for skinID: {}", skinId, e);
             }
+        }else if(skinData != null && skinId.toLowerCase().contains("vanilla")){
+            return -1.0;
         }
 
         return ThreadLocalRandom.current().nextDouble(0.0, 1.0);
