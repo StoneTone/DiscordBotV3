@@ -235,6 +235,10 @@ public class CaseCommand {
         String skinId = item.getString("id");
         JSONObject skinData = skinsCache.get(skinId);
 
+        if(skinId.toLowerCase().contains("vanilla")){
+            return -1.0;
+        }
+
         if (skinData != null && skinData.has("min_float") && skinData.has("max_float")) {
             try {
                 double minFloat = skinData.getDouble("min_float");
@@ -244,8 +248,6 @@ public class CaseCommand {
             } catch (Exception e) {
                 logger.error("Error calculating wear for skinID: {}", skinId, e);
             }
-        }else if(skinData != null && skinId.toLowerCase().contains("vanilla")){
-            return -1.0;
         }
 
         return ThreadLocalRandom.current().nextDouble(0.0, 1.0);
