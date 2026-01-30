@@ -12,3 +12,15 @@ server:
 lofi:
   channel-url: "https://www.youtube.com/@LofiGirl/streams"
   ytdlp-path: "yt-dlp" #change this to the path of yt-dlp for local testing
+
+spring:
+  config:
+    token: ${DISCORD_TOKEN}
+    guild: ${GUILD_ID}
+    twitch-id: ${TWITCH_CLIENT_ID}
+    twitch-secret: ${TWITCH_CLIENT_SECRET}
+  ai:
+    openai:
+      api-key: ${GPT_SECRET:null}
+      gpt-prompt: ${GPT_PROMPT:null}
+      model: ${GPT_MODEL:null}

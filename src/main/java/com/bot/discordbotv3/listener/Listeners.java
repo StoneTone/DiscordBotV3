@@ -31,14 +31,16 @@ public class Listeners extends ListenerAdapter {
 
     private final long guildID;
     private Role requestedRole = null;
-    private final String gptSecret;
     private final TwitchService twitchService;
+    private final String gptSecret;
+    private final String gptModel;
 
 
-    public Listeners(long guildID, String gptSecret, TwitchService twitchService) {
+    public Listeners(long guildID, TwitchService twitchService, String gptSecret, String gptModel) {
         this.guildID = guildID;
-        this.gptSecret = gptSecret;
         this.twitchService = twitchService;
+        this.gptSecret = gptSecret;
+        this.gptModel = gptModel;
     }
 
     @Override
@@ -81,7 +83,7 @@ public class Listeners extends ListenerAdapter {
             case "skip" -> SkipCommand.handleSkipCommand(event);
             case "queue" -> QueueCommand.handleQueueCommand(event);
             case "nowplaying" -> NowPlayingCommand.handleNowPlayingCommand(event);
-            case "gpt" -> GptCommand.handleGptCommand(event, gptSecret);
+            case "gpt" -> GptCommand.handleGptCommand(event, gptSecret, gptModel);
             case "lofi" -> {
                 String videoURL = "";
                 for(OptionMapping option : event.getOptions()){

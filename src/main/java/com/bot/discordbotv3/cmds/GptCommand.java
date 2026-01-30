@@ -1,5 +1,7 @@
 package com.bot.discordbotv3.cmds;
 
+import com.bot.discordbotv3.cnfg.ConfigReader;
+import com.bot.discordbotv3.cnst.CmnCnst;
 import com.bot.discordbotv3.gpt.ChatRequest;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -19,14 +21,14 @@ import java.util.concurrent.CompletableFuture;
 
 public class GptCommand {
     private static final Logger logger = LoggerFactory.getLogger(GptCommand.class);
-    public static void handleGptCommand(SlashCommandInteractionEvent event, String gptSecret){
+    public static void handleGptCommand(SlashCommandInteractionEvent event, String gptSecret, String gptModel){
         String prompt = event.getOption("prompt").getAsString();
 
         event.deferReply().queue(hook -> {
             // Process the response asynchronously
             CompletableFuture.runAsync(() -> {
                 try {
-                    ChatRequest request = new ChatRequest("gpt-3.5-turbo", prompt);
+                    ChatRequest request = new ChatRequest(gptModel, prompt);
                     URL url = new URL("https://api.openai.com/v1/chat/completions");
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
