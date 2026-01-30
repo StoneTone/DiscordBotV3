@@ -48,9 +48,11 @@ cp .env.example .env
 
 Edit `.env` with your values:
 ```
-DISCORD_TOKEN=your_discord_bot_token
-GUILD_ID=your_server_id
-GPT_SECRET=your_openai_api_key
+DISCORD_TOKEN=your_discord_bot_token_here
+GUILD_ID=your_guild_id_here
+GPT_SECRET=your_gpt_secret_here (not needed)
+TWITCH_CLIENT_ID=your_client_id_here (not needed)
+TWITCH_CLIENT_SECRET=your_secret_here (not needed)
 ```
 
 ### 3. Run the bot
@@ -61,8 +63,8 @@ docker-compose up -d
 ### Updating yt-dlp
 If YouTube playback breaks due to yt-dlp being outdated:
 ```bash
-docker-compose build --no-cache yt-dlp
-docker-compose up -d yt-dlp
+docker-compose down
+docker-compose up -d
 ```
 
 ---
@@ -87,7 +89,7 @@ docker-compose up -d yt-dlp
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/DiscordBotV3.git
+git clone https://github.com/StoneTone/DiscordBotV3.git
 cd DiscordBotV3
 ```
 
@@ -96,12 +98,21 @@ cd DiscordBotV3
 export DISCORD_TOKEN=your_discord_bot_token
 export GUILD_ID=your_server_id
 export GPT_SECRET=your_openai_api_key
+export TWITCH_CLIENT_ID=your_client_id_here
+export TWITCH_CLIENT_SECRET=your_secret_here
 ```
 
 3. Build and run with Gradle:
 ```bash
 ./gradlew clean build -x test
 ./gradlew bootRun
+```
+3. Install YT-DLP and point to the EXE:
+```yml
+#Modify App.yml
+lofi:
+  channel-url: "https://www.youtube.com/@LofiGirl/streams"
+  ytdlp-path: "C:/PATH/TO/YT-DLP" #change this to the path of yt-dlp for local testing
 ```
 
 ### Running with Docker (from source)
@@ -148,11 +159,12 @@ Navigate to `src/main/java/com/bot/discordbotv3/gpt/ChatRequest` and change the 
 - **Description:** Interact with ChatGPT directly within the Discord server.
 - **Usage:** Utilize the `/gpt <your_message>` command to engage in conversations.
 - **Functionality:** Generates responses based on the provided input using ChatGPT.
+- **Note:** Navigate to `src/main/java/com/bot/discordbotv3/gpt/ChatRequest` and change the system message to configure your own personality for your bot.
 
 ### CS2 Case Opening
 - **Description:** Opening virtual CS2 cases for FREE!
 - **Usage:** Utilize the `/open <case>` command to open cases.
-- **Functionality:** Utilizes CS2 API for all data. Check it out here: [CS2 API](https://github.com/ByMykel/CSGO-API)
+- **Functionality:** Utilizes CS2 JSON for all data. Check it out here: [CS2 API](https://github.com/ByMykel/CSGO-API)
 
 ### Twitch Notifications
 - **Description:** Get notified when a Twitch streamer goes live.
