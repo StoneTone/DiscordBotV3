@@ -41,7 +41,7 @@ public class BotConfig {
     @PostConstruct
     public void init() {
         if (gptSecret == null) {
-            log.warn("Either GPT or YouTube secret is missing, some features may not work!");
+            log.warn("GPT some features may not work!");
         }
     }
 }

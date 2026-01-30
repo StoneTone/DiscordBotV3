@@ -8,3 +8,7 @@ logging:
 
 server:
   port: 8081
+
+lofi:
+  channel-url: "https://www.youtube.com/@LofiGirl/streams"
+  ytdlp-service-url: "http://yt-dlp:8080"
