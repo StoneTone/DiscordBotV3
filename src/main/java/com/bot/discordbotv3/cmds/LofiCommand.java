@@ -33,15 +33,14 @@ public class LofiCommand {
                 return;
             }
         }
-        //clear the queue and change the song
-        GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
-        TrackScheduler trackScheduler = guildMusicManager.getTrackScheduler();
-        trackScheduler.getQueue().clear();
-        trackScheduler.getPlayer().stopTrack();
 
         event.deferReply().queue(hook -> {
-            PlayerManager playerManager = PlayerManager.get();
-            playerManager.play(event.getGuild(), option, hook);
+            GuildMusicManager guildMusicManager = PlayerManager.get().getGuildMusicManager(event.getGuild());
+            TrackScheduler trackScheduler = guildMusicManager.getTrackScheduler();
+            trackScheduler.getQueue().clear();
+            trackScheduler.getPlayer().stopTrack();
+
+            PlayerManager.get().play(event.getGuild(), option, hook);
         });
 
     }

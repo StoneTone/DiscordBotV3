@@ -1,0 +1,36 @@
+services:
+  discordbot:
+    image: stonetone31/discordbotv3:latest
+    container_name: discordbot
+    restart: unless-stopped
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - GUILD_ID=${GUILD_ID}
+      - GPT_SECRET=${GPT_SECRET}
+      - TWITCH_CLIENT_ID=${TWITCH_CLIENT_ID}
+      - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
+    depends_on:
+      - yt-cipher
+      - yt-dlp
+    networks:
+      - bot-network
+
+  yt-cipher:
+    image: ghcr.io/kikkia/yt-cipher:master
+    container_name: yt-cipher
+    restart: unless-stopped
+    networks:
+      - bot-network
+
+  yt-dlp:
+    build:
+      context: ./yt-dlp-service
+      dockerfile: Dockerfile
+    container_name: yt-dlp
+    restart: unless-stopped
+    networks:
+      - bot-network
+
+networks:
+  bot-network:
+    driver: bridge

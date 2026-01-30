@@ -5,56 +5,120 @@ Welcome to my Java Discord bot application! This bot is built using JDA (Java Di
 
 ## Setup
 ### Discord Portal
-1. Go to the [Discord Developer](https://discord.com/developers)  portal
+1. Go to the [Discord Developer](https://discord.com/developers) portal
 2. Click `New Application`
-3. Customized however you'd like
+3. Customize however you'd like
 4. Click `Bot` Tab then `Reset Secret`
 5. Copy your token (Keep this secure and do not share with anyone!)
 6. Scroll down to `Privileged Gateway Intents` and enable all intents (This is required for the bot to function properly)
 7. Click `OAuth2` Tab
 8. In the OAuth2 URL Generator, make sure to select (bot, application.commands)
 9. Select administrator permissions
-10. Copy the generated url and paste into your browser and invite it to your server 
+10. Copy the generated url and paste into your browser and invite it to your server
 11. Move your bot role to the highest priority in your server `Server Settings/Roles`
 
-### OpenAi (ChatGPT) #Not Required ONLY for /gpt command
+### OpenAI (ChatGPT) - Optional
+*Only required for the `/gpt` command*
 1. Go to [OpenAI](https://platform.openai.com/) portal
 2. Create an account (if you don't have one)
 3. Click API Keys
 4. Create a new secret key
 
-### Twitch Notifications #Not Required ONLY for /twitch command
+### Twitch Notifications - Optional
+*Only required for the `/twitch` command*
 1. Go to [Twitch Developer](https://dev.twitch.tv/) portal
 2. Create an account (if you don't have one)
 3. Click `Create Application`
 4. Fill out the required fields and click `Create`
 5. Copy your client id and client secret
 
-### Run Application Locally
-To run this application locally, follow these steps:
+---
 
-1. Clone the repository to your local machine.
-2. Add the environment variables when running the application
-3. Compile and run the application using Maven.
+## Quick Start with Docker (Recommended)
 
+The easiest way to run this bot is using Docker with pre-built images.
+
+### 1. Download the required files
+Download `docker-compose.yml` and `.env.example` from this repository.
+
+### 2. Create your environment file
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your values:
 ```
 DISCORD_TOKEN=your_discord_bot_token
 GUILD_ID=your_server_id
-YOUTUBE_SECRET=your_youtube_api_key
-OWNER_ID=your_discord_id
-GPT_SECRET=your_gpt_secret_key
-TWITCH_CLIENT_ID=your_twitch_client_id
-TWITCH_CLIENT_SECRET=your_twitch_client_secret
+GPT_SECRET=your_openai_api_key
+```
+
+### 3. Run the bot
+```bash
+docker-compose up -d
+```
+
+### Updating yt-dlp
+If YouTube playback breaks due to yt-dlp being outdated:
+```bash
+docker-compose build --no-cache yt-dlp
+docker-compose up -d yt-dlp
+```
+
+---
+
+## Running from Source
+
+### Prerequisites
+- Java 17
+- Gradle
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DISCORD_TOKEN` | Yes | Your Discord bot token |
+| `GUILD_ID` | Yes | Your Discord server ID |
+| `GPT_SECRET` | No | OpenAI API key (for `/gpt` command) |
+| `TWITCH_CLIENT_ID` | No | Twitch client ID (for `/twitch` command) |
+| `TWITCH_CLIENT_SECRET` | No | Twitch client secret (for `/twitch` command) |
+
+### Steps
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/DiscordBotV3.git
+cd DiscordBotV3
+```
+
+2. Set environment variables:
+```bash
+export DISCORD_TOKEN=your_discord_bot_token
+export GUILD_ID=your_server_id
+export GPT_SECRET=your_openai_api_key
+```
+
+3. Build and run with Gradle:
+```bash
+./gradlew clean build -x test
+./gradlew bootRun
+```
+
+### Running with Docker (from source)
+```bash
+./gradlew clean build -x test
+docker-compose up --build
 ```
 
 #### Additional Notes
 
-*-to get your guild id you need to enable developer mode in discord-*
+*To get your Guild ID, enable Developer Mode in Discord: User Settings > App Settings > Advanced > Developer Mode. Then right-click your server and click "Copy Server ID".*
 
-*-Make sure you move your bot to the highest role in the server. `Server Settings/Roles` then click and drag-*
+*Make sure you move your bot to the highest role in the server: Server Settings > Roles, then click and drag.*
 
-Navigate to `src/main/java/com/bot/discordbotv3/gpt/ChatRequest` and change the system message to configure your own personality to your bot.
-Otherwise, you can leave this blank. 
+Navigate to `src/main/java/com/bot/discordbotv3/gpt/ChatRequest` and change the system message to configure your own personality for your bot.
+
+---
 
 ## Core Features
 
@@ -64,9 +128,9 @@ Otherwise, you can leave this blank.
 - **Functionality:** Sends a direct message to the server owner for approval.
 
 ### Audio Commands
-- **Play:** Play music from YouTube.
-- **Lofi:** Plays lofi from YouTube.
-  - **Note:** This uses a webscraper to get all streams from a youtube channel
+- **Play:** Play music from YouTube or any HTTP URL.
+- **Lofi:** Plays lofi radio streams from the LofiGirl YouTube channel.
+  - **Note:** Uses a yt-dlp service to fetch live streams.
 - **Pause:** Pause the currently playing track.
 - **Unpause:** Resume playback after pausing.
 - **Stop:** Stop the playback entirely.
@@ -86,7 +150,7 @@ Otherwise, you can leave this blank.
 - **Functionality:** Generates responses based on the provided input using ChatGPT.
 
 ### CS2 Case Opening
-- **Description:** Opening Virtual CS2 cases for FREE!
+- **Description:** Opening virtual CS2 cases for FREE!
 - **Usage:** Utilize the `/open <case>` command to open cases.
 - **Functionality:** Utilizes CS2 API for all data. Check it out here: [CS2 API](https://github.com/ByMykel/CSGO-API)
 
@@ -96,16 +160,24 @@ Otherwise, you can leave this blank.
 - **Functionality:** Sends a message to the specified text channel when the streamer goes live.
 - **Note:** You can also use `/twitchconfig` to remove the streamer from the notification list or edit the custom message.
 
-## Dependencies
-- Java 17
-- Maven
+---
 
-## Getting Started
-1. Ensure you have Java 17 installed on your system.
-2. Install Maven for dependency management.
-3. Set up your environment variables in GitHub for deployment
-4. Change the deploy stage in the cicd.yaml file for your deployment
-5. Compile and run the application using Maven.
+## Architecture
+
+```
+┌─────────────────┐
+│   discordbot    │ (Java/Spring Boot)
+└────────┬────────┘
+         │
+    ┌────┴────┬─────────────┐
+    ▼         ▼             ▼
+┌────────┐ ┌────────┐ ┌──────────┐
+│yt-dlp  │ │yt-cipher│ │ YouTube  │
+│service │ │        │ │ Lavalink │
+└────────┘ └────────┘ └──────────┘
+```
+
+---
 
 ## Contributions
 Contributions are welcome! Feel free to fork this repository and submit pull requests for any improvements or additional features.
@@ -113,4 +185,4 @@ Contributions are welcome! Feel free to fork this repository and submit pull req
 ## Support
 If you encounter any issues or have questions, please don't hesitate to contact me. You can reach out to me on [Discord](https://discord.com/users/480574457203916813).
 
-Thank you for using my Java Discord bot! We hope you enjoy its features and find it useful for your server.
+Thank you for using my Java Discord bot! I hope you enjoy its features and find it useful for your server.
