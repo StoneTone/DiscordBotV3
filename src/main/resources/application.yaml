@@ -11,4 +11,4 @@ server:
 
 lofi:
   channel-url: "https://www.youtube.com/@LofiGirl/streams"
-  ytdlp-service-url: "http://yt-dlp:8080"
+  ytdlp-path: "yt-dlp" #change this to the path of yt-dlp for local testing

@@ -11,22 +11,12 @@ services:
       - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
     depends_on:
       - yt-cipher
-      - yt-dlp
     networks:
       - bot-network
 
   yt-cipher:
     image: ghcr.io/kikkia/yt-cipher:master
     container_name: yt-cipher
-    restart: unless-stopped
-    networks:
-      - bot-network
-
-  yt-dlp:
-    build:
-      context: ./yt-dlp-service
-      dockerfile: Dockerfile
-    container_name: yt-dlp
     restart: unless-stopped
     networks:
       - bot-network
