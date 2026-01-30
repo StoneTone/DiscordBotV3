@@ -20,11 +20,12 @@ jobs:
           cache: 'gradle'
 
       - name: Build with Gradle
-        run: ./gradlew clean build -x test --no-daemon
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build -x test --no-daemon
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           GUILD_ID: ${{ secrets.GUILD_ID }}
-          YOUTUBE_SECRET: ${{ secrets.YOUTUBE_SECRET }}
           GPT_SECRET: ${{ secrets.GPT_SECRET }}
 
       - name: Upload Build Artifact
