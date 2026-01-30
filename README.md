@@ -50,9 +50,11 @@ Edit `.env` with your values:
 ```
 DISCORD_TOKEN=your_discord_bot_token_here
 GUILD_ID=your_guild_id_here
-GPT_SECRET=your_gpt_secret_here (not needed)
-TWITCH_CLIENT_ID=your_client_id_here (not needed)
-TWITCH_CLIENT_SECRET=your_secret_here (not needed)
+GPT_SECRET=your_gpt_secret_here
+GPT_PROMPT=your_custom_personality_prompt
+GPT_MODEL=your_gpt_model
+TWITCH_CLIENT_ID=your_client_id_here
+TWITCH_CLIENT_SECRET=your_secret_here
 ```
 
 ### 3. Run the bot
@@ -77,13 +79,15 @@ docker-compose up -d
 
 ### Environment Variables
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DISCORD_TOKEN` | Yes | Your Discord bot token |
-| `GUILD_ID` | Yes | Your Discord server ID |
-| `GPT_SECRET` | No | OpenAI API key (for `/gpt` command) |
-| `TWITCH_CLIENT_ID` | No | Twitch client ID (for `/twitch` command) |
-| `TWITCH_CLIENT_SECRET` | No | Twitch client secret (for `/twitch` command) |
+| Variable               | Required | Description                                    |
+|------------------------|----------|------------------------------------------------|
+| `DISCORD_TOKEN`        | Yes | Your Discord bot token                         |
+| `GUILD_ID`             | Yes | Your Discord server ID                         |
+| `GPT_SECRET`           | No | OpenAI API key (for `/gpt` command)            |
+| `GPT_PROMPT`           | No | Custom Personality Prompt (for `/gpt` command) |
+| `GPT_MODEL`            | No | Specific OpenAi Model (for `/gpt` command)     |
+| `TWITCH_CLIENT_ID`     | No | Twitch client ID (for `/twitch` command)       |
+| `TWITCH_CLIENT_SECRET` | No | Twitch client secret (for `/twitch` command)   |
 
 ### Steps
 
@@ -98,6 +102,8 @@ cd DiscordBotV3
 export DISCORD_TOKEN=your_discord_bot_token
 export GUILD_ID=your_server_id
 export GPT_SECRET=your_openai_api_key
+export GPT_PROMPT=your_custom_personality_prompt
+export GPT_MODEL=your_gpt_model
 export TWITCH_CLIENT_ID=your_client_id_here
 export TWITCH_CLIENT_SECRET=your_secret_here
 ```
@@ -126,8 +132,6 @@ docker-compose up --build
 *To get your Guild ID, enable Developer Mode in Discord: User Settings > App Settings > Advanced > Developer Mode. Then right-click your server and click "Copy Server ID".*
 
 *Make sure you move your bot to the highest role in the server: Server Settings > Roles, then click and drag.*
-
-Navigate to `src/main/java/com/bot/discordbotv3/gpt/ChatRequest` and change the system message to configure your own personality for your bot.
 
 ---
 
@@ -159,7 +163,6 @@ Navigate to `src/main/java/com/bot/discordbotv3/gpt/ChatRequest` and change the 
 - **Description:** Interact with ChatGPT directly within the Discord server.
 - **Usage:** Utilize the `/gpt <your_message>` command to engage in conversations.
 - **Functionality:** Generates responses based on the provided input using ChatGPT.
-- **Note:** Navigate to `src/main/java/com/bot/discordbotv3/gpt/ChatRequest` and change the system message to configure your own personality for your bot.
 
 ### CS2 Case Opening
 - **Description:** Opening virtual CS2 cases for FREE!
