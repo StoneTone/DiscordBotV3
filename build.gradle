@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.bot'
-version = '2.0.2-BETA'
+version = '2.0.3-BETA'
 
 java {
     toolchain {
@@ -31,9 +31,9 @@ dependencies {
     implementation 'dev.arbjerg:lavaplayer:2.2.6'
 
     // YouTube source libs
-    implementation 'dev.lavalink.youtube:youtube-plugin:1.17.0'
-    implementation 'dev.lavalink.youtube:common:1.17.0'
-    implementation 'dev.lavalink.youtube:v2:1.17.0'
+    implementation 'dev.lavalink.youtube:youtube-plugin:1.18.0'
+    implementation 'dev.lavalink.youtube:common:1.18.0'
+    implementation 'dev.lavalink.youtube:v2:1.18.0'
 
     // Twitch
     implementation 'com.github.twitch4j:twitch4j:1.25.0'
