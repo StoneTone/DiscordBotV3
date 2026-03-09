@@ -1,10 +1,12 @@
 package com.bot.discordbotv3.cnfg;
 
+import club.minnced.discord.jdave.interop.JDaveSessionFactory;
 import com.bot.discordbotv3.cnst.CmnCnst;
 import com.bot.discordbotv3.listener.Listeners;
 import com.bot.discordbotv3.service.TwitchService;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.audio.AudioModuleConfig;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,8 @@ public class BotConfig {
         builder.enableIntents(GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS));
         builder.addEventListeners(new Listeners(Long.parseLong(cnfgRdr.getPropValue(CmnCnst.GUILDID)), twitchService, cnfgRdr.getPropValue(CmnCnst.GPTSECRET),
                 cnfgRdr.getPropValue(CmnCnst.GPTMODEL)));
+        builder.setAudioModuleConfig(new AudioModuleConfig()
+                .withDaveSessionFactory(new JDaveSessionFactory()));
         if(cnfgRdr.getPropValue(CmnCnst.GPTSECRET).isEmpty()){
             log.warn("GPT token is null. Some features may not work!");
         }
