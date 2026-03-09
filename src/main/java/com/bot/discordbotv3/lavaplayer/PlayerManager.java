@@ -13,9 +13,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.YoutubeSourceOptions;
-import dev.lavalink.youtube.clients.AndroidVrWithThumbnail;
-import dev.lavalink.youtube.clients.WebEmbeddedWithThumbnail;
-import dev.lavalink.youtube.clients.WebWithThumbnail;
+import dev.lavalink.youtube.clients.*;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.slf4j.Logger;
@@ -57,7 +55,7 @@ public class PlayerManager {
         AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
         playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.HIGH);
         playerManager.getConfiguration().setOpusEncodingQuality(10);
-        playerManager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, new WebEmbeddedWithThumbnail(), new WebWithThumbnail(), new AndroidVrWithThumbnail()));
+        playerManager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, new AndroidVrWithThumbnail(), new MWebWithThumbnail(),new IosWithThumbnail(),new WebWithThumbnail()));
         AudioSourceManagers.registerLocalSource(playerManager);
         return playerManager;
     }
