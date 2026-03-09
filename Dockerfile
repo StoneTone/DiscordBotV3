@@ -7,6 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
+RUN mkdir -p /app/tmp
+
 COPY build/libs/*.jar app.jar
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh

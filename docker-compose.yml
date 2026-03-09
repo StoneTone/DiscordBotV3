@@ -11,6 +11,7 @@ services:
       - GPT_MODEL=${GPT_MODEL}
       - TWITCH_CLIENT_ID=${TWITCH_CLIENT_ID}
       - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
+      - JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=/app/tmp --enable-native-access=ALL-UNNAMED
     depends_on:
       - yt-cipher
     networks:
