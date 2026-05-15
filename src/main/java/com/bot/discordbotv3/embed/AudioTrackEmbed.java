@@ -23,7 +23,7 @@ public class AudioTrackEmbed {
             embedBuilder.addField("Duration","`" + formatDuration(info.length) + "`", true);
         }
         embedBuilder.addField("Queue", "`" + queueSize + "`", true);
-        embedBuilder.addField("Requested By", hook.getInteraction().getUser().getEffectiveName(), true);
+        embedBuilder.addField("Requested By", hook.getInteraction().getMember().getEffectiveName(), true);
         embedBuilder.setUrl(info.uri);
         hook.editOriginalEmbeds(embedBuilder.build()).queue();
     }

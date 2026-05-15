@@ -13,7 +13,7 @@ public class AudioPlaylistEmbed {
         embedBuilder.addField("Author", info.author, true);
         embedBuilder.setUrl(info.uri);
         embedBuilder.addField("Queue", String.valueOf(size), true);
-        embedBuilder.addField("Requested By", hook.getInteraction().getUser().getEffectiveName(), true);
+        embedBuilder.addField("Requested By", hook.getInteraction().getMember().getEffectiveName(), true);
         hook.editOriginalEmbeds(embedBuilder.build()).queue();
     }
 }
