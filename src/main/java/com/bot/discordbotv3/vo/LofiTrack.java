@@ -14,15 +14,12 @@ public class LofiTrack {
     private String titleName;
     @JsonProperty("url")
     private String url;
-    @JsonProperty("lastUpdated")
-    private LocalDateTime lastUpdated;
 
-    public LofiTrack(Long id, String videoId, String titleName, String url, LocalDateTime lastUpdated) {
+    public LofiTrack(Long id, String videoId, String titleName, String url) {
         this.id = id;
         this.videoId = videoId;
         this.titleName = titleName;
         this.url = url;
-        this.lastUpdated = lastUpdated;
     }
 
     public LofiTrack() {
@@ -60,11 +57,4 @@ public class LofiTrack {
         this.url = url;
     }
 
-    public LocalDateTime getLastUpdated() {
-        return lastUpdated;
-    }
-
-    public void setLastUpdated(LocalDateTime lastUpdated) {
-        this.lastUpdated = lastUpdated;
-    }
 }

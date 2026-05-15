@@ -7,6 +7,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class LofiOptions {
@@ -16,7 +19,10 @@ public class LofiOptions {
     public static OptionData handleLofiOptions() {
         try {
             List<LofiTrack> liveStreams = LofiService.getLofiTracks();
-            OptionData options = new OptionData(OptionType.STRING, "type", "Pick what type of lofi sound", true);
+            String timestamp = LocalDateTime.now(ZoneOffset.UTC)
+                    .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss"));
+
+            OptionData options = new OptionData(OptionType.STRING, "type", "Pick what type of lofi sound (Last Refreshed: " + timestamp + " UTC)", true);
 
             if (liveStreams != null && !liveStreams.isEmpty()) {
                 for (LofiTrack lives : liveStreams) {

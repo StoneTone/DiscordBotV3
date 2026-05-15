@@ -68,7 +68,6 @@ public class Listeners extends ListenerAdapter {
         String commandName = event.getName();
 
         switch (commandName) {
-            case "sum" -> SumCommand.handleSumCommand(event);
             case "rolerequest" -> {
                 for (OptionMapping option : event.getOptions()) {
                     requestedRole = event.getJDA().getRoleById(option.getAsString());
