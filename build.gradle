@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.bot'
-version = '2.0.10-BETA'
+version = '2.0.11-BETA'
 
 java {
     toolchain {
@@ -16,7 +16,7 @@ java {
 repositories {
     mavenCentral()
     maven { url = 'https://jitpack.io' }
-//    maven { url = 'https://maven.lavalink.dev/releases' } commenting out for now due to server issues
+    maven { url = 'https://maven.lavalink.dev/releases' }
 }
 
 dependencies {
@@ -38,12 +38,9 @@ dependencies {
     // implementation 'club.minnced:jdave-native-darwin:0.1.6'
 
     // YouTube source libs
-//    implementation 'dev.lavalink.youtube:youtube-plugin:1.18.0'
-//    implementation 'dev.lavalink.youtube:common:1.18.0'
-//    implementation 'dev.lavalink.youtube:v2:1.18.0'
-    //commenting out for now due to server issue
-
-    implementation files('libs/youtube-plugin-1.18.0.jar', 'libs/common-1.18.0.jar', 'libs/v2-1.18.0.jar')
+    implementation 'dev.lavalink.youtube:youtube-plugin:1.18.1'
+    implementation 'dev.lavalink.youtube:common:1.18.1'
+    implementation 'dev.lavalink.youtube:v2:1.18.1'
 
     // Twitch
     implementation 'com.github.twitch4j:twitch4j:1.25.0'
