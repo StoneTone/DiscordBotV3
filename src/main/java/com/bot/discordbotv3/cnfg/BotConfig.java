@@ -4,6 +4,7 @@ import club.minnced.discord.jdave.interop.JDaveSessionFactory;
 import com.bot.discordbotv3.cnst.CmnCnst;
 import com.bot.discordbotv3.listener.Listeners;
 import com.bot.discordbotv3.service.TwitchService;
+import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.audio.AudioModuleConfig;
@@ -31,11 +32,13 @@ public class BotConfig {
         builder.addEventListeners(new Listeners(Long.parseLong(cnfgRdr.getPropValue(CmnCnst.GUILDID)), twitchService, cnfgRdr.getPropValue(CmnCnst.GPTSECRET),
                 cnfgRdr.getPropValue(CmnCnst.GPTMODEL)));
         builder.setAudioModuleConfig(new AudioModuleConfig()
-                .withDaveSessionFactory(new JDaveSessionFactory()));
+                .withDaveSessionFactory(new JDaveSessionFactory())
+                .withAudioSendFactory(new NativeAudioSendFactory()));
         if(cnfgRdr.getPropValue(CmnCnst.GPTSECRET).isEmpty()){
             log.warn("GPT token is null. Some features may not work!");
         }
-        JDA jda =  builder.build();
+        log.info("Native audio send factory enabled");
+        JDA jda = builder.build();
         twitchService.setJda(jda);
         return jda;
     }

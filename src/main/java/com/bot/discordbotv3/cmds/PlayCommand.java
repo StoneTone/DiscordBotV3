@@ -26,7 +26,6 @@ public class PlayCommand {
         GuildVoiceState selfVoiceState = self.getVoiceState();
 
         if (!selfVoiceState.inAudioChannel()) {
-            //Join
             event.getGuild().getAudioManager().openAudioConnection(memberVoiceState.getChannel());
         } else {
             if (selfVoiceState.getChannel() != memberVoiceState.getChannel()) {
@@ -35,21 +34,38 @@ public class PlayCommand {
             }
         }
 
+        OptionMapping searchOption = event.getOption("search");
+        OptionMapping urlOption = event.getOption("url");
 
-        for(OptionMapping options : event.getOptions()){
-            if(options.getName().equals("search")){
-                event.deferReply().queue(hook -> {
-                    String searchQuery = "ytsearch:" + options.getAsString();
-                    PlayerManager playerManager = PlayerManager.get();
-                    playerManager.play(event.getGuild(), searchQuery, hook);
-                });
-            }
-            if(options.getName().equals("url")) {
-                event.deferReply().queue(hook -> {
-                    PlayerManager playerManager = PlayerManager.get();
-                    playerManager.play(event.getGuild(), event.getOption("url").getAsString(), hook);
-                });
-            }
+        if (searchOption == null && urlOption == null) {
+            event.reply("You need to provide a search term or URL!").setEphemeral(true).queue();
+            return;
         }
+
+        String query;
+        if (urlOption != null) {
+            String url = urlOption.getAsString().trim();
+            if (url.isEmpty()) {
+                event.reply("URL cannot be empty!").setEphemeral(true).queue();
+                return;
+            }
+            query = url;
+        } else {
+            String search = searchOption.getAsString().trim();
+            if (search.isEmpty()) {
+                event.reply("Search term cannot be empty!").setEphemeral(true).queue();
+                return;
+            }
+            query = "ytsearch:" + search;
+        }
+
+        event.deferReply().queue(hook -> {
+            try {
+                PlayerManager.get().play(event.getGuild(), query, hook);
+            } catch (Exception e) {
+                logger.error("Error playing track | Query: {}", query, e);
+                hook.editOriginal("❌ Something went wrong trying to play that track.").queue();
+            }
+        });
     }
 }
