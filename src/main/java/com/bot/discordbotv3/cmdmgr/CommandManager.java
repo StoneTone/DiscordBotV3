@@ -64,7 +64,8 @@ public class CommandManager {
                     )
                     .addCommands(
                             Commands.slash("activity", "Set the bot's activity")
-                                    .addOption(OptionType.STRING, "activity", "The activity you want the bot to display", true)
+                                    .addOptions(ActivityOptions.handleActivityOptions())
+                                    .addOption(OptionType.STRING, "text", "Status Message", true)
                     )
                     .addCommands(
                             Commands.slash("twitch", "Sends a message to a channel when a Twitch streamer goes live")

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.bot'
-version = '2.0.11-BETA'
+version = '2.0.12-BETA'
 
 java {
     toolchain {
@@ -36,6 +36,10 @@ dependencies {
     implementation 'club.minnced:jdave-native-linux-aarch64:0.1.6'
     implementation 'club.minnced:jdave-native-win-x86-64:0.1.6'
     // implementation 'club.minnced:jdave-native-darwin:0.1.6'
+
+    // Native audio send system (prevents GC stutter)
+    implementation 'club.minnced:udpqueue-native-win-x86-64:0.2.12'
+    implementation 'club.minnced:udpqueue-native-linux-aarch64:0.2.12'
 
     // YouTube source libs
     implementation 'dev.lavalink.youtube:youtube-plugin:1.18.1'

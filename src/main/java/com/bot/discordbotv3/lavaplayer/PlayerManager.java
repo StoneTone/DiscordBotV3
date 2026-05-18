@@ -14,6 +14,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.YoutubeSourceOptions;
 import dev.lavalink.youtube.clients.*;
+import dev.lavalink.youtube.clients.skeleton.Client;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import org.slf4j.Logger;
@@ -34,30 +35,48 @@ public class PlayerManager {
     private final AudioPlayerManager youtubePlayerManager;
 
     private PlayerManager() {
-        this.defaultPlayerManager = createDefaultPlayerManager();
+        this.defaultPlayerManager = createPlayerManager();
         this.youtubePlayerManager = createYoutubePlayerManager();
     }
 
-    private AudioPlayerManager createDefaultPlayerManager() {
-        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-        playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.HIGH);
-        playerManager.getConfiguration().setOpusEncodingQuality(10);
-        AudioSourceManagers.registerRemoteSources(playerManager);
-        AudioSourceManagers.registerLocalSource(playerManager);
-        return playerManager;
+    private AudioPlayerManager createPlayerManager() {
+        AudioPlayerManager manager = new DefaultAudioPlayerManager();
+        manager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.HIGH);
+        manager.getConfiguration().setOpusEncodingQuality(10);
+        AudioSourceManagers.registerRemoteSources(manager);
+        AudioSourceManagers.registerLocalSource(manager);
+        log.info("Default player manager initialized with remote + local sources");
+        return manager;
     }
 
     private AudioPlayerManager createYoutubePlayerManager() {
         String cipherURL = isApiAvailable();
         YoutubeSourceOptions sourceOptions = new YoutubeSourceOptions()
                 .setAllowSearch(true)
-                .setRemoteCipher(cipherURL, "","");
-        AudioPlayerManager playerManager = new DefaultAudioPlayerManager();
-        playerManager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.HIGH);
-        playerManager.getConfiguration().setOpusEncodingQuality(10);
-        playerManager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, new AndroidVrWithThumbnail(), new MWebWithThumbnail(),new IosWithThumbnail(),new WebWithThumbnail()));
-        AudioSourceManagers.registerLocalSource(playerManager);
-        return playerManager;
+                .setRemoteCipher(cipherURL, "", "");
+
+        AudioPlayerManager manager = new DefaultAudioPlayerManager();
+        manager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.HIGH);
+        manager.getConfiguration().setOpusEncodingQuality(10);
+
+        Client[] ytClients = new Client[]{
+                new AndroidVrWithThumbnail(),
+                new TvHtml5SimplyWithThumbnail(),
+                new MWebWithThumbnail(), // stops for live streams
+                new WebWithThumbnail(), //stops for live streams
+                new MusicWithThumbnail() //stops for live streams
+        };
+
+        manager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, ytClients));
+        AudioSourceManagers.registerLocalSource(manager);
+
+        log.info("YouTube player manager initialized with clients: {}",
+                java.util.Arrays.stream(ytClients)
+                        .map(c -> c.getClass().getSimpleName())
+                        .collect(java.util.stream.Collectors.joining(", ")));
+        log.info("Using cipher URL: {}", cipherURL);
+
+        return manager;
     }
 
     private String isApiAvailable() {
@@ -70,15 +89,13 @@ public class PlayerManager {
             connection.setRequestMethod("HEAD");
             connection.setConnectTimeout(200);
             connection.setReadTimeout(200);
-
             connection.getResponseCode();
             connection.disconnect();
 
+            log.info("Local cipher API available at {}", localApiUrl);
             return localApiUrl;
         } catch (Exception e) {
-            // Only timeouts and connection refused will throw exceptions
-            log.warn("API Unreachable: {}", e.getMessage());
-            log.info("Defaulting to Public Cipher");
+            log.warn("Local cipher unreachable: {}. Falling back to public cipher", e.getMessage());
             return publicApiUrl;
         }
     }
@@ -94,6 +111,7 @@ public class PlayerManager {
         return guildMusicManagers.computeIfAbsent(guild.getIdLong(), (guildId) -> {
             GuildMusicManager musicManager = new GuildMusicManager(defaultPlayerManager, guild);
             guild.getAudioManager().setSendingHandler(musicManager.getAudioForwarder());
+            log.info("Created new music manager for guild: {} ({})", guild.getName(), guild.getId());
             return musicManager;
         });
     }
@@ -101,7 +119,8 @@ public class PlayerManager {
     public void play(Guild guild, String trackURL, InteractionHook hook) {
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
         AudioPlayerManager selectedManager = isYoutubeURL(trackURL) ? youtubePlayerManager : defaultPlayerManager;
-
+        log.info("Play requested in guild {} | URL: {} | Manager: {}",
+                guild.getName(), trackURL, isYoutubeURL(trackURL) ? "YouTube" : "Default");
         new VoiceChannelManager().startDisconnectTimer(guild);
         loadAndPlay(selectedManager, guildMusicManager, trackURL, hook);
     }
@@ -110,37 +129,46 @@ public class PlayerManager {
         return url.contains("youtube") || url.contains("youtu.be") || url.startsWith("ytsearch:") || url.startsWith("ytmsearch:");
     }
 
-    private void loadAndPlay(AudioPlayerManager playerManager, GuildMusicManager musicManager, String trackURL, InteractionHook hook) {
-        playerManager.loadItemOrdered(musicManager, trackURL, new AudioLoadResultHandler() {
+    private void loadAndPlay(AudioPlayerManager manager, GuildMusicManager musicManager, String trackURL, InteractionHook hook) {
+        manager.loadItemOrdered(musicManager, trackURL, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
+                AudioTrackInfo info = track.getInfo();
+                log.info("Track loaded | Title: {} | Author: {} | Source: {} | Duration: {}ms",
+                        info.title, info.author, track.getSourceManager().getSourceName(), info.length);
                 handleSingleTrack(track, musicManager, hook);
             }
 
             @Override
             public void playlistLoaded(AudioPlaylist playlist) {
+                log.info("Playlist loaded | Name: {} | Tracks: {} | Search: {}",
+                        playlist.getName(), playlist.getTracks().size(), playlist.isSearchResult());
                 handlePlaylist(playlist, musicManager, hook);
             }
 
             @Override
             public void noMatches() {
+                log.warn("No matches found for URL: {}", trackURL);
                 hook.editOriginal("🔍 No matches found. Try a different search term.").queue(
-                    success -> {},
-                    error -> hook.sendMessage("🔍 No matches found").setEphemeral(true).queue()
+                        success -> {},
+                        error -> hook.sendMessage("🔍 No matches found").setEphemeral(true).queue()
                 );
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
+                log.error("Track load failed | URL: {} | Severity: {} | Message: {}",
+                        trackURL, exception.severity, exception.getMessage(), exception);
+
                 String errorMessage = switch (exception.severity) {
                     case COMMON -> "Track unavailable. Please try a different song.";
                     case SUSPICIOUS -> "Unable to load track due to rate limiting. Try again later.";
                     case FAULT -> "YouTube service error. Please try again.";
                 };
-                
+
                 hook.editOriginal("❌ " + errorMessage).queue(
-                    success -> {},
-                    error -> hook.sendMessage("❌ Failed to load track").setEphemeral(true).queue()
+                        success -> {},
+                        error -> hook.sendMessage("❌ Failed to load track").setEphemeral(true).queue()
                 );
             }
         });
@@ -167,9 +195,10 @@ public class PlayerManager {
             List<AudioTrack> tracks = new ArrayList<>(playlist.getTracks());
             AudioPlaylistEmbed.audioPlaylistEmbedBuilder(info, hook, tracks.size());
             tracks.remove(0);
-            for(AudioTrack track : tracks){
+            for (AudioTrack track : tracks) {
                 musicManager.getTrackScheduler().queue(track);
             }
+            log.info("Queued {} tracks from playlist", tracks.size());
         }
     }
 
