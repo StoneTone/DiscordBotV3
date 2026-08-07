@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.bot'
-version = '2.0.12-BETA'
+version = '2.0.13-BETA'
 
 java {
     toolchain {
@@ -28,7 +28,7 @@ dependencies {
     implementation 'net.dv8tion:JDA:6.3.1'
 
     // Lavaplayer
-    implementation 'dev.arbjerg:lavaplayer:2.2.6'
+    implementation 'dev.arbjerg:lavaplayer:2.2.7'
 
     // DAVE E2EE
     implementation 'club.minnced:jdave-api:0.1.6'
@@ -42,9 +42,9 @@ dependencies {
     implementation 'club.minnced:udpqueue-native-linux-aarch64:0.2.12'
 
     // YouTube source libs
-    implementation 'dev.lavalink.youtube:youtube-plugin:1.18.1'
-    implementation 'dev.lavalink.youtube:common:1.18.1'
-    implementation 'dev.lavalink.youtube:v2:1.18.1'
+    implementation 'dev.lavalink.youtube:youtube-plugin:1.18.2'
+    implementation 'dev.lavalink.youtube:common:1.18.2'
+    implementation 'dev.lavalink.youtube:v2:1.18.2'
 
     // Twitch
     implementation 'com.github.twitch4j:twitch4j:1.25.0'
