@@ -60,11 +60,10 @@ public class PlayerManager {
         manager.getConfiguration().setOpusEncodingQuality(10);
 
         Client[] ytClients = new Client[]{
+                new MusicWithThumbnail(),
                 new AndroidVrWithThumbnail(),
-                new TvHtml5SimplyWithThumbnail(),
-                new MWebWithThumbnail(), // stops for live streams
-                new WebWithThumbnail(), //stops for live streams
-                new MusicWithThumbnail() //stops for live streams
+                new WebWithThumbnail(),
+                new WebEmbeddedWithThumbnail()
         };
 
         manager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, ytClients));
@@ -134,8 +133,8 @@ public class PlayerManager {
             @Override
             public void trackLoaded(AudioTrack track) {
                 AudioTrackInfo info = track.getInfo();
-                log.info("Track loaded | Title: {} | Author: {} | Source: {} | Duration: {}ms",
-                        info.title, info.author, track.getSourceManager().getSourceName(), info.length);
+                log.info("Track loaded | Title: {} | Author: {} | Source: {} | Duration: {}ms | Stream: {}",
+                        info.title, info.author, track.getSourceManager().getSourceName(), info.length, info.isStream);
                 handleSingleTrack(track, musicManager, hook);
             }
 
