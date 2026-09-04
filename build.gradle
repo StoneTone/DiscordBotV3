@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.bot'
-version = '2.0.14-BETA'
+version = '2.0.15-BETA'
 
 java {
     toolchain {
@@ -14,9 +14,11 @@ java {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven { url = 'https://jitpack.io' }
     maven { url = 'https://maven.lavalink.dev/releases' }
+    maven { url = 'https://maven.lavalink.dev/snapshots' }
 }
 
 dependencies {
@@ -25,7 +27,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
     // Discord JDA
-    implementation 'net.dv8tion:JDA:6.3.1'
+    implementation 'net.dv8tion:JDA:6.5.0'
 
     // Lavaplayer
     implementation 'dev.arbjerg:lavaplayer:2.2.7'
@@ -41,10 +43,10 @@ dependencies {
     implementation 'club.minnced:udpqueue-native-win-x86-64:0.2.12'
     implementation 'club.minnced:udpqueue-native-linux-aarch64:0.2.12'
 
-    // YouTube source libs
-    implementation 'dev.lavalink.youtube:youtube-plugin:1.18.2'
-    implementation 'dev.lavalink.youtube:common:1.18.2'
-    implementation 'dev.lavalink.youtube:v2:1.18.2'
+    // YouTube source libs (ashton045 fork — SABR + poToken support)
+    implementation 'dev.lavalink.youtube:youtube-plugin:cf77f5b59d6fc27c3be0809cc3e90aad6f8efc30'
+    implementation 'dev.lavalink.youtube:common:cf77f5b59d6fc27c3be0809cc3e90aad6f8efc30-SNAPSHOT'
+    implementation 'dev.lavalink.youtube:v2:cf77f5b59d6fc27c3be0809cc3e90aad6f8efc30-SNAPSHOT'
 
     // Twitch
     implementation 'com.github.twitch4j:twitch4j:1.25.0'
@@ -72,6 +74,7 @@ bootRun {
 
 bootJar {
     archiveFileName = "${project.name}-${project.version}.jar"
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes 'Enable-Native-Access': 'ALL-UNNAMED'
     }

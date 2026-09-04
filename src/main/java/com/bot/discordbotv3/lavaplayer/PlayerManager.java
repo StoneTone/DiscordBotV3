@@ -2,7 +2,6 @@ package com.bot.discordbotv3.lavaplayer;
 
 import com.bot.discordbotv3.embed.AudioPlaylistEmbed;
 import com.bot.discordbotv3.embed.AudioTrackEmbed;
-import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -31,55 +30,47 @@ public class PlayerManager {
     private static final Logger log = LoggerFactory.getLogger(PlayerManager.class);
     private static PlayerManager INSTANCE;
     private final Map<Long, GuildMusicManager> guildMusicManagers = new HashMap<>();
-    private final AudioPlayerManager defaultPlayerManager;
-    private final AudioPlayerManager youtubePlayerManager;
+    private final AudioPlayerManager playerManager;
+
+    private final String ytdlpPath;
 
     private PlayerManager() {
-        this.defaultPlayerManager = createPlayerManager();
-        this.youtubePlayerManager = createYoutubePlayerManager();
+        this.ytdlpPath = System.getenv().getOrDefault("YTDLP_PATH", "yt-dlp");
+        this.playerManager = createPlayerManager();
     }
 
     private AudioPlayerManager createPlayerManager() {
-        AudioPlayerManager manager = new DefaultAudioPlayerManager();
-        manager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.HIGH);
-        manager.getConfiguration().setOpusEncodingQuality(10);
-        AudioSourceManagers.registerRemoteSources(manager);
-        AudioSourceManagers.registerLocalSource(manager);
-        log.info("Default player manager initialized with remote + local sources");
-        return manager;
-    }
-
-    private AudioPlayerManager createYoutubePlayerManager() {
         String cipherURL = isApiAvailable();
+        String potURL = isPotApiAvailable();
+
         YoutubeSourceOptions sourceOptions = new YoutubeSourceOptions()
                 .setAllowSearch(true)
                 .setRemoteCipher(cipherURL, "", "");
 
+        if (potURL != null) {
+            sourceOptions.setRemotePoToken(potURL, null);
+            log.info("poToken generation enabled via: {}", potURL);
+        }
+
         AudioPlayerManager manager = new DefaultAudioPlayerManager();
-        manager.getConfiguration().setResamplingQuality(AudioConfiguration.ResamplingQuality.HIGH);
-        manager.getConfiguration().setOpusEncodingQuality(10);
 
         Client[] ytClients = new Client[]{
                 new MusicWithThumbnail(),
-                new AndroidVrWithThumbnail(),
                 new WebWithThumbnail(),
                 new WebEmbeddedWithThumbnail()
         };
 
+        manager.registerSourceManager(new YtDlpLiveSourceManager(ytdlpPath));
         manager.registerSourceManager(new YoutubeAudioSourceManager(sourceOptions, ytClients));
+        AudioSourceManagers.registerRemoteSources(manager);
         AudioSourceManagers.registerLocalSource(manager);
 
-        log.info("YouTube player manager initialized with clients: {}",
-                java.util.Arrays.stream(ytClients)
-                        .map(c -> c.getClass().getSimpleName())
-                        .collect(java.util.stream.Collectors.joining(", ")));
-        log.info("Using cipher URL: {}", cipherURL);
-
+        log.info("Player manager initialized | cipher: {} | yt-dlp: {}", cipherURL, ytdlpPath);
         return manager;
     }
 
     private String isApiAvailable() {
-        String localApiUrl = "http://yt-cipher:8001";
+        String localApiUrl = System.getenv().getOrDefault("CIPHER_URL", "http://yt-cipher:8001");
         String publicApiUrl = "https://cipher.kikkia.dev/api";
 
         try {
@@ -98,6 +89,26 @@ public class PlayerManager {
             return publicApiUrl;
         }
     }
+    //Temporary until official fix (poToken generation running for videos only)
+    private String isPotApiAvailable() {
+        String localApiUrl = System.getenv().getOrDefault("POT_URL", "http://webpo-generator:8090");
+
+        try {
+            URL url = new URL(localApiUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.setConnectTimeout(200);
+            connection.setReadTimeout(200);
+            connection.getResponseCode();
+            connection.disconnect();
+
+            log.info("WebPO generator available at {}", localApiUrl);
+            return localApiUrl;
+        } catch (Exception e) {
+            log.warn("WebPO generator unreachable: {}. poToken generation disabled", e.getMessage());
+            return null;
+        }
+    }
 
     public static PlayerManager get() {
         if (INSTANCE == null) {
@@ -108,7 +119,7 @@ public class PlayerManager {
 
     public GuildMusicManager getGuildMusicManager(Guild guild) {
         return guildMusicManagers.computeIfAbsent(guild.getIdLong(), (guildId) -> {
-            GuildMusicManager musicManager = new GuildMusicManager(defaultPlayerManager, guild);
+            GuildMusicManager musicManager = new GuildMusicManager(playerManager, guild);
             guild.getAudioManager().setSendingHandler(musicManager.getAudioForwarder());
             log.info("Created new music manager for guild: {} ({})", guild.getName(), guild.getId());
             return musicManager;
@@ -117,19 +128,13 @@ public class PlayerManager {
 
     public void play(Guild guild, String trackURL, InteractionHook hook) {
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
-        AudioPlayerManager selectedManager = isYoutubeURL(trackURL) ? youtubePlayerManager : defaultPlayerManager;
-        log.info("Play requested in guild {} | URL: {} | Manager: {}",
-                guild.getName(), trackURL, isYoutubeURL(trackURL) ? "YouTube" : "Default");
+        log.info("Play requested in guild {} | URL: {}", guild.getName(), trackURL);
         new VoiceChannelManager().startDisconnectTimer(guild);
-        loadAndPlay(selectedManager, guildMusicManager, trackURL, hook);
+        loadAndPlay(guildMusicManager, trackURL, hook);
     }
 
-    private boolean isYoutubeURL(String url) {
-        return url.contains("youtube") || url.contains("youtu.be") || url.startsWith("ytsearch:") || url.startsWith("ytmsearch:");
-    }
-
-    private void loadAndPlay(AudioPlayerManager manager, GuildMusicManager musicManager, String trackURL, InteractionHook hook) {
-        manager.loadItemOrdered(musicManager, trackURL, new AudioLoadResultHandler() {
+    private void loadAndPlay(GuildMusicManager musicManager, String trackURL, InteractionHook hook) {
+        playerManager.loadItemOrdered(musicManager, trackURL, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
                 AudioTrackInfo info = track.getInfo();
@@ -174,8 +179,45 @@ public class PlayerManager {
     }
 
     private void handleSingleTrack(AudioTrack track, GuildMusicManager musicManager, InteractionHook hook) {
-        musicManager.getTrackScheduler().queue(track);
         AudioTrackInfo info = track.getInfo();
+
+        if (info.isStream && !(track instanceof YtDlpLiveAudioTrack)) {
+            log.info("Live stream detected, re-routing to yt-dlp pipeline | Title: {}", info.title);
+            String ytdlpId = YtDlpLiveSourceManager.buildIdentifier(info);
+            playerManager.loadItemOrdered(musicManager, ytdlpId, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack ytdlpTrack) {
+                    musicManager.getTrackScheduler().queue(ytdlpTrack);
+                    boolean isQueueEmpty = musicManager.getTrackScheduler().getQueue().isEmpty();
+                    AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, isQueueEmpty,
+                            musicManager.getTrackScheduler().getQueue().size());
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist playlist) {}
+
+                @Override
+                public void noMatches() {
+                    log.warn("yt-dlp failed to load live stream, falling back to default");
+                    musicManager.getTrackScheduler().queue(track);
+                    boolean isQueueEmpty = musicManager.getTrackScheduler().getQueue().isEmpty();
+                    AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, isQueueEmpty,
+                            musicManager.getTrackScheduler().getQueue().size());
+                }
+
+                @Override
+                public void loadFailed(FriendlyException exception) {
+                    log.warn("yt-dlp load failed, falling back to default: {}", exception.getMessage());
+                    musicManager.getTrackScheduler().queue(track);
+                    boolean isQueueEmpty = musicManager.getTrackScheduler().getQueue().isEmpty();
+                    AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, isQueueEmpty,
+                            musicManager.getTrackScheduler().getQueue().size());
+                }
+            });
+            return;
+        }
+
+        musicManager.getTrackScheduler().queue(track);
         boolean isQueueEmpty = musicManager.getTrackScheduler().getQueue().isEmpty();
         AudioTrackEmbed.audioTrackEmbedBuilder(info, hook, isQueueEmpty,
                 musicManager.getTrackScheduler().getQueue().size());

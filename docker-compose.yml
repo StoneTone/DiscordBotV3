@@ -11,9 +11,12 @@ services:
       - GPT_MODEL=${GPT_MODEL}
       - TWITCH_CLIENT_ID=${TWITCH_CLIENT_ID}
       - TWITCH_CLIENT_SECRET=${TWITCH_CLIENT_SECRET}
+      - CIPHER_URL=http://yt-cipher:8001
+      - POT_URL=http://webpo-generator:8090
       - JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=/app/tmp --enable-native-access=ALL-UNNAMED
     depends_on:
       - yt-cipher
+      - webpo-generator
     networks:
       - bot-network
 
@@ -21,6 +24,16 @@ services:
     image: ghcr.io/kikkia/yt-cipher:master
     container_name: yt-cipher
     restart: unless-stopped
+    networks:
+      - bot-network
+
+  webpo-generator:
+    build: https://github.com/ashton045/webpo-generator.git
+    container_name: webpo-generator
+    restart: unless-stopped
+    environment:
+      - PORT=8090
+      - WORKERS=2
     networks:
       - bot-network
 

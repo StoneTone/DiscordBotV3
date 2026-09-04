@@ -39,3 +39,6 @@ build/
 # Local config
 /src/main/resources/application-lcl.properties
 yt-dlp_x86.exe
+
+# Claude Code
+.claude/
