@@ -32,12 +32,10 @@ public class BotConfig {
         builder.addEventListeners(new Listeners(Long.parseLong(cnfgRdr.getPropValue(CmnCnst.GUILDID)), twitchService, cnfgRdr.getPropValue(CmnCnst.GPTSECRET),
                 cnfgRdr.getPropValue(CmnCnst.GPTMODEL)));
         builder.setAudioModuleConfig(new AudioModuleConfig()
-                .withDaveSessionFactory(new JDaveSessionFactory())
-                .withAudioSendFactory(new NativeAudioSendFactory()));
+                .withDaveSessionFactory(new JDaveSessionFactory()));
         if(cnfgRdr.getPropValue(CmnCnst.GPTSECRET).isEmpty()){
             log.warn("GPT token is null. Some features may not work!");
         }
-        log.info("Native audio send factory enabled");
         JDA jda = builder.build();
         twitchService.setJda(jda);
         return jda;

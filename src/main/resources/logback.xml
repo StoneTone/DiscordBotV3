@@ -14,8 +14,7 @@
     <!-- youtube-plugin -->
     <logger name="dev.lavalink.youtube" level="info"/>
     <logger name="dev.lavalink.youtube.clients" level="info"/>
-    <!-- Logs which YouTube client is selected per track -->
-    <!--<logger name="dev.lavalink.youtube.track.YoutubeAudioTrack" level="debug"/>-->
+    <logger name="dev.lavalink.youtube.track.YoutubeAudioTrack" level="info"/>
     <!-- lavalink -->
     <logger name="lavalink.server.io.SocketContext" level="info"/>
 

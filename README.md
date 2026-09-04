@@ -1,7 +1,7 @@
 # Java Discord Bot with JDA and Lavaplayer
 
 ## Introduction
-Welcome to my Java Discord bot application! This bot is built using JDA (Java Discord API) and Lavaplayer, allowing seamless integration of audio playback in Discord servers. With a focus on simplicity and functionality, my bot provides essential features for managing roles, playing music, and even integrating ChatGPT for engaging conversations.
+A feature-rich Discord bot built with JDA (Java Discord API) and Lavaplayer. Supports YouTube music playback (including live streams), playlists, Twitch notifications, ChatGPT integration, and more.
 
 ## Setup
 ### Discord Portal
@@ -36,7 +36,7 @@ Welcome to my Java Discord bot application! This bot is built using JDA (Java Di
 
 ## Quick Start with Docker (Recommended)
 
-The easiest way to run this bot is using Docker with pre-built images.
+The easiest way to run this bot is using Docker with pre-built images. All dependencies (yt-dlp, ffmpeg, cipher, poToken) are handled automatically.
 
 ### 1. Download the required files
 Download `docker-compose.yml` and `.env.example` from this repository.
@@ -50,23 +50,23 @@ Edit `.env` with your values:
 ```
 DISCORD_TOKEN=your_discord_bot_token_here
 GUILD_ID=your_guild_id_here
-GPT_SECRET=your_gpt_secret_here
-GPT_PROMPT=your_custom_personality_prompt
-GPT_MODEL=your_gpt_model
-TWITCH_CLIENT_ID=your_client_id_here
-TWITCH_CLIENT_SECRET=your_secret_here
 ```
 
 ### 3. Run the bot
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-### Updating yt-dlp
-If YouTube playback breaks due to yt-dlp being outdated:
+This starts three services:
+- **discordbot** - The bot itself (includes yt-dlp and ffmpeg)
+- **yt-cipher** - YouTube signature decryption service
+- **webpo-generator** - YouTube poToken generation for video playback
+
+### Updating
+If YouTube playback breaks, restart to pull the latest yt-dlp:
 ```bash
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 ```
 
 ---
@@ -74,20 +74,25 @@ docker-compose up -d
 ## Running from Source
 
 ### Prerequisites
-- Java 17
+- Java 25+
 - Gradle
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp/releases) (required for live stream playback)
+- [ffmpeg](https://ffmpeg.org/download.html) (required for live stream audio processing)
 
 ### Environment Variables
 
-| Variable               | Required | Description                                    |
-|------------------------|----------|------------------------------------------------|
-| `DISCORD_TOKEN`        | Yes | Your Discord bot token                         |
-| `GUILD_ID`             | Yes | Your Discord server ID                         |
-| `GPT_SECRET`           | No | OpenAI API key (for `/gpt` command)            |
-| `GPT_PROMPT`           | No | Custom Personality Prompt (for `/gpt` command) |
-| `GPT_MODEL`            | No | Specific OpenAi Model (for `/gpt` command)     |
-| `TWITCH_CLIENT_ID`     | No | Twitch client ID (for `/twitch` command)       |
-| `TWITCH_CLIENT_SECRET` | No | Twitch client secret (for `/twitch` command)   |
+| Variable               | Required | Description                                      |
+|------------------------|----------|--------------------------------------------------|
+| `DISCORD_TOKEN`        | Yes      | Your Discord bot token                           |
+| `GUILD_ID`             | Yes      | Your Discord server ID                           |
+| `CIPHER_URL`           | No       | Cipher API URL (default: `http://yt-cipher:8001`). Falls back to public API if unreachable |
+| `POT_URL`              | No       | poToken generator URL (default: `http://webpo-generator:8090`). Disabled if unreachable |
+| `YTDLP_PATH`           | No       | Path to yt-dlp binary (default: `yt-dlp`)        |
+| `GPT_SECRET`           | No       | OpenAI API key (for `/gpt` command)              |
+| `GPT_PROMPT`           | No       | Custom personality prompt (for `/gpt` command)   |
+| `GPT_MODEL`            | No       | OpenAI model name (for `/gpt` command)           |
+| `TWITCH_CLIENT_ID`     | No       | Twitch client ID (for `/twitch` command)         |
+| `TWITCH_CLIENT_SECRET` | No       | Twitch client secret (for `/twitch` command)     |
 
 ### Steps
 
@@ -97,34 +102,29 @@ git clone https://github.com/StoneTone/DiscordBotV3.git
 cd DiscordBotV3
 ```
 
-2. Set environment variables:
+2. Set required environment variables:
 ```bash
 export DISCORD_TOKEN=your_discord_bot_token
 export GUILD_ID=your_server_id
-export GPT_SECRET=your_openai_api_key
-export GPT_PROMPT=your_custom_personality_prompt
-export GPT_MODEL=your_gpt_model
-export TWITCH_CLIENT_ID=your_client_id_here
-export TWITCH_CLIENT_SECRET=your_secret_here
 ```
 
-3. Build and run with Gradle:
+3. Configure yt-dlp path in `application.yaml`:
+```yaml
+lofi:
+  ytdlp-path: "/path/to/yt-dlp"
+```
+Or set the `YTDLP_PATH` environment variable.
+
+4. Build and run:
 ```bash
 ./gradlew clean build -x test
 ./gradlew bootRun
-```
-3. Install YT-DLP and point to the EXE:
-```yml
-#Modify App.yml
-lofi:
-  channel-url: "https://www.youtube.com/@LofiGirl/streams"
-  ytdlp-path: "C:/PATH/TO/YT-DLP" #change this to the path of yt-dlp for local testing
 ```
 
 ### Running with Docker (from source)
 ```bash
 ./gradlew clean build -x test
-docker-compose up --build
+docker compose up --build
 ```
 
 #### Additional Notes
@@ -137,60 +137,59 @@ docker-compose up --build
 
 ## Core Features
 
-### Role Request
-- **Description:** Users can request a role in the server.
-- **Usage:** Use the `/rolerequest <role_name>` command to request a specific role.
-- **Functionality:** Sends a direct message to the server owner for approval.
-
 ### Audio Commands
-- **Play:** Play music from YouTube or any HTTP URL.
-- **Lofi:** Plays lofi radio streams from the LofiGirl YouTube channel.
-  - **Note:** Uses a yt-dlp service to fetch live streams.
-- **Pause:** Pause the currently playing track.
-- **Unpause:** Resume playback after pausing.
-- **Stop:** Stop the playback entirely.
-- **Skip:** Skip the current track in the queue.
-- **Queue:** View the list of upcoming tracks.
-- **NowPlaying:** Display the currently playing track.
-- **Leave:** Disconnect the bot from the voice channel.
+- **Play** - Play music from YouTube, SoundCloud, or any HTTP URL.
+- **Lofi** - Plays lofi radio streams from the LofiGirl YouTube channel.
+- **Pause / Unpause** - Pause and resume playback.
+- **Stop** - Stop playback and clear the queue.
+- **Skip** - Skip the current track.
+- **Queue** - View upcoming tracks.
+- **NowPlaying** - Display the currently playing track.
+- **Leave** - Disconnect the bot from the voice channel.
+
+### Role Request
+- **Usage:** `/rolerequest <role_name>`
+- Sends a direct message to the server owner for approval.
 
 ### Embed Builder
-- **Description:** Create custom embed messages.
-- **Usage:** Use the `/embed` command to create an embed message.
-- **Functionality:** Generates a custom embed message based on user input.
+- **Usage:** `/embed`
+- Create custom embed messages based on user input.
 
 ### ChatGPT Integration
-- **Description:** Interact with ChatGPT directly within the Discord server.
-- **Usage:** Utilize the `/gpt <your_message>` command to engage in conversations.
-- **Functionality:** Generates responses based on the provided input using ChatGPT.
+- **Usage:** `/gpt <your_message>`
+- Generates responses using OpenAI's API.
 
 ### CS2 Case Opening
-- **Description:** Opening virtual CS2 cases for FREE!
-- **Usage:** Utilize the `/open <case>` command to open cases.
-- **Functionality:** Utilizes CS2 JSON for all data. Check it out here: [CS2 API](https://github.com/ByMykel/CSGO-API)
+- **Usage:** `/open <case>`
+- Open virtual CS2 cases. Data sourced from [CS2 API](https://github.com/ByMykel/CSGO-API).
 
 ### Twitch Notifications
-- **Description:** Get notified when a Twitch streamer goes live.
-- **Usage:** Use the `/twitch <streamer_name> <text_channel> <custom_message>` command to receive notifications.
-- **Functionality:** Sends a message to the specified text channel when the streamer goes live.
-- **Note:** You can also use `/twitchconfig` to remove the streamer from the notification list or edit the custom message.
+- **Usage:** `/twitch <streamer_name> <text_channel> <custom_message>`
+- Get notified when a Twitch streamer goes live.
+- Use `/twitchconfig` to manage notification settings.
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────┐
-│   discordbot    │ (Java/Spring Boot)
-└────────┬────────┘
-         │
-    ┌────┴────┬─────────────┐
-    ▼         ▼             ▼
-┌────────┐ ┌────────┐ ┌──────────┐
-│yt-dlp  │ │yt-cipher│ │ YouTube  │
-│service │ │        │ │ Lavalink │
-└────────┘ └────────┘ └──────────┘
+                  ┌─────────────────────┐
+                  │    Discord Bot       │
+                  │  (Java/Spring Boot)  │
+                  └──────────┬──────────┘
+                             │
+         ┌───────────┬───────┴───────┬───────────┐
+         ▼           ▼               ▼           ▼
+   ┌──────────┐ ┌──────────┐ ┌────────────┐ ┌────────┐
+   │yt-cipher │ │webpo-gen │ │  yt-dlp +  │ │YouTube │
+   │(signing) │ │(poToken) │ │  ffmpeg    │ │  API   │
+   └──────────┘ └──────────┘ │(livestream)│ └────────┘
+                             └────────────┘
 ```
+
+### Audio Pipeline
+- **Regular videos:** YouTube API (via lavaplayer youtube-source with poToken support)
+- **Live streams:** yt-dlp + ffmpeg pipeline for smooth, continuous audio without segment gaps
 
 ---
 
@@ -199,5 +198,3 @@ Contributions are welcome! Feel free to fork this repository and submit pull req
 
 ## Support
 If you encounter any issues or have questions, please don't hesitate to contact me. You can reach out to me on [Discord](https://discord.com/users/480574457203916813).
-
-Thank you for using my Java Discord bot! I hope you enjoy its features and find it useful for your server.

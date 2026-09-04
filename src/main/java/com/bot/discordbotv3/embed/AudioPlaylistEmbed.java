@@ -30,14 +30,7 @@ public class AudioPlaylistEmbed {
 
         embedBuilder.addField("Tracks", "`" + size + "`", true);
 
-        String artworkUrl = info.artworkUrl;
-        if (artworkUrl != null && artworkUrl.contains("ytimg.com")) {
-            artworkUrl = artworkUrl.replaceAll(
-                    "(hqdefault|mqdefault|sddefault|default)",
-                    "maxresdefault"
-            );
-        }
-        embedBuilder.setThumbnail(artworkUrl);
+        embedBuilder.setThumbnail(info.artworkUrl);
 
         embedBuilder.setTimestamp(Instant.now());
 

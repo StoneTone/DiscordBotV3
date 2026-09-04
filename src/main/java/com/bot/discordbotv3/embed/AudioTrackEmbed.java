@@ -4,7 +4,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-
 import java.time.Duration;
 import java.time.Instant;
 
@@ -45,15 +44,7 @@ public class AudioTrackEmbed {
         }
         embedBuilder.addField("Queue", "`" + queueSize + "`", true);
 
-        // Artwork — try to get the highest res version for YouTube thumbnails
-        String artworkUrl = info.artworkUrl;
-        if (artworkUrl != null && artworkUrl.contains("ytimg.com")) {
-            artworkUrl = artworkUrl.replaceAll(
-                    "(hqdefault|mqdefault|sddefault|default)",
-                    "maxresdefault"
-            );
-        }
-        embedBuilder.setImage(artworkUrl);
+        embedBuilder.setImage(info.artworkUrl);
 
         // Timestamp in the footer — shows when the track was requested
         embedBuilder.setTimestamp(Instant.now());
