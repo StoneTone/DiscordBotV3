@@ -44,11 +44,11 @@ public class YtDlpLiveAudioTrack extends BaseAudioTrack {
         log.info("Starting yt-dlp live stream | Title: {} | URL: {} | yt-dlp path: {}", trackInfo.title, url, ytdlpPath);
 
         ProcessBuilder ytdlpPb = new ProcessBuilder(ytdlpPath,
-                "-f", "bestaudio", "--no-part", "--js-runtimes", "node", "-o", "-", url);
+                "-f", "bestaudio", "--no-part", "-o", "-", url);
         ProcessBuilder ffmpegPb = new ProcessBuilder("ffmpeg", "-i", "pipe:0", "-f", "s16le", "-ar",
                 String.valueOf(SAMPLE_RATE), "-ac", String.valueOf(CHANNELS), "pipe:1", "-loglevel", "warning");
 
-        log.info("yt-dlp command: {} -f bestaudio --no-part --js-runtimes node -o - {}", ytdlpPath, url);
+        log.info("yt-dlp command: {} -f bestaudio --no-part -o - {}", ytdlpPath, url);
 
         processes = ProcessBuilder.startPipeline(List.of(ytdlpPb, ffmpegPb));
         Process ytdlpProcess = processes.get(0);

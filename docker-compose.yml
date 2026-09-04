@@ -15,8 +15,10 @@ services:
       - POT_URL=http://webpo-generator:8090
       - JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=/app/tmp --enable-native-access=ALL-UNNAMED
     depends_on:
-      - yt-cipher
-      - webpo-generator
+      yt-cipher:
+        condition: service_started
+      webpo-generator:
+        condition: service_healthy
     networks:
       - bot-network
 
@@ -34,6 +36,11 @@ services:
     environment:
       - PORT=8090
       - WORKERS=2
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:8090/',r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     networks:
       - bot-network
 
