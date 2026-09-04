@@ -14,12 +14,20 @@ jobs:
       - name: Check Out Code
         uses: actions/checkout@v5
 
-      - name: Set up JDK 17
+      - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
+          java-version: '25'
           distribution: 'temurin'
           cache: 'gradle'
+
+      - name: Build youtube-source fork
+        run: |
+          git clone https://github.com/ashton045/youtube-source.git /tmp/youtube-source
+          cd /tmp/youtube-source
+          git checkout cf77f5b59d6fc27c3be0809cc3e90aad6f8efc30
+          chmod +x gradlew
+          ./gradlew publishToMavenLocal -x test --no-daemon
 
       - name: Build with Gradle
         run: |
