@@ -43,25 +43,39 @@ public class YtDlpLiveAudioTrack extends BaseAudioTrack {
         String url = trackInfo.uri;
         log.info("Starting yt-dlp live stream | Title: {} | URL: {} | yt-dlp path: {}", trackInfo.title, url, ytdlpPath);
 
-        ProcessBuilder ytdlpPb = new ProcessBuilder(ytdlpPath, "-f", "bestaudio", "--no-part", "-o", "-", url);
-        ProcessBuilder ffmpegPb = new ProcessBuilder("ffmpeg", "-i", "pipe:0", "-f", "s16le", "-ar",
-                String.valueOf(SAMPLE_RATE), "-ac", String.valueOf(CHANNELS), "pipe:1", "-loglevel", "warning");
+        // Try single-ffmpeg mode first (less CPU — important for Pi/ARM)
+        // yt-dlp -g returns the direct stream URL, then one ffmpeg handles HLS + PCM conversion
+        String streamUrl = getStreamUrl(url);
 
-        log.info("yt-dlp command: {} -f bestaudio --no-part -o - {}", ytdlpPath, url);
-
-        processes = ProcessBuilder.startPipeline(List.of(ytdlpPb, ffmpegPb));
-        Process ytdlpProcess = processes.get(0);
-        Process ffmpegProcess = processes.get(1);
-
-        // Log stderr from both processes
-        logProcessStderr(ytdlpProcess, "yt-dlp");
-        logProcessStderr(ffmpegProcess, "ffmpeg");
-
-        // Monitor process exit codes
-        monitorProcess(ytdlpProcess, "yt-dlp");
-        monitorProcess(ffmpegProcess, "ffmpeg");
-
-        InputStream pcmStream = ffmpegProcess.getInputStream();
+        InputStream pcmStream;
+        if (streamUrl != null) {
+            log.info("Using direct stream URL with single ffmpeg process");
+            ProcessBuilder ffmpegPb = new ProcessBuilder("ffmpeg",
+                    "-reconnect", "1",
+                    "-reconnect_streamed", "1",
+                    "-reconnect_delay_max", "5",
+                    "-i", streamUrl,
+                    "-f", "s16le", "-ar", String.valueOf(SAMPLE_RATE),
+                    "-ac", String.valueOf(CHANNELS),
+                    "-loglevel", "warning",
+                    "pipe:1");
+            Process ffmpegProcess = ffmpegPb.start();
+            this.processes = List.of(ffmpegProcess);
+            logProcessStderr(ffmpegProcess, "ffmpeg");
+            monitorProcess(ffmpegProcess, "ffmpeg");
+            pcmStream = ffmpegProcess.getInputStream();
+        } else {
+            log.warn("Could not get direct URL, falling back to yt-dlp | ffmpeg pipeline");
+            ProcessBuilder ytdlpPb = new ProcessBuilder(ytdlpPath, "-f", "bestaudio", "--no-part", "-o", "-", url);
+            ProcessBuilder ffmpegPb = new ProcessBuilder("ffmpeg", "-i", "pipe:0", "-f", "s16le", "-ar",
+                    String.valueOf(SAMPLE_RATE), "-ac", String.valueOf(CHANNELS), "pipe:1", "-loglevel", "warning");
+            processes = ProcessBuilder.startPipeline(List.of(ytdlpPb, ffmpegPb));
+            logProcessStderr(processes.get(0), "yt-dlp");
+            logProcessStderr(processes.get(1), "ffmpeg");
+            monitorProcess(processes.get(0), "yt-dlp");
+            monitorProcess(processes.get(1), "ffmpeg");
+            pcmStream = processes.get(1).getInputStream();
+        }
 
         try {
             executor.executeProcessingLoop(() -> {
@@ -73,12 +87,12 @@ public class YtDlpLiveAudioTrack extends BaseAudioTrack {
                     short[] samples = new short[960 * CHANNELS];
                     long framesProcessed = 0;
 
-                    log.info("yt-dlp pipeline ready, waiting for PCM audio...");
+                    log.info("Pipeline ready, waiting for PCM audio...");
 
                     while (true) {
                         int totalRead = readFully(pcmStream, buffer);
                         if (totalRead < PCM_FRAME_SIZE) {
-                            log.info("yt-dlp stream ended | frames processed: {} | last read: {} bytes",
+                            log.info("Stream ended | frames processed: {} | last read: {} bytes",
                                     framesProcessed, totalRead);
                             break;
                         }
@@ -88,10 +102,10 @@ public class YtDlpLiveAudioTrack extends BaseAudioTrack {
                         framesProcessed++;
 
                         if (framesProcessed == 1) {
-                            log.info("First audio frame received from yt-dlp pipeline");
+                            log.info("First audio frame received from pipeline");
                         } else if (framesProcessed % 3000 == 0) {
                             // Log every 60 seconds (3000 frames * 20ms = 60s)
-                            log.debug("yt-dlp stream alive | frames: {} | ~{}s played", framesProcessed, framesProcessed / 50);
+                            log.debug("Stream alive | frames: {} | ~{}s played", framesProcessed, framesProcessed / 50);
                         }
                     }
                 } finally {
@@ -103,12 +117,39 @@ public class YtDlpLiveAudioTrack extends BaseAudioTrack {
         }
     }
 
+    private String getStreamUrl(String url) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder(ytdlpPath, "-g", "-f", "bestaudio", url);
+            Process process = pb.start();
+            logProcessStderr(process, "yt-dlp");
+            String output = new String(process.getInputStream().readAllBytes()).trim();
+            int exitCode = process.waitFor();
+            if (exitCode != 0 || output.isEmpty()) {
+                log.warn("yt-dlp -g failed with exit code {}", exitCode);
+                return null;
+            }
+            // yt-dlp may return multiple lines (video + audio), take the last one
+            String[] lines = output.split("\n");
+            String streamUrl = lines[lines.length - 1].trim();
+            log.info("Got direct stream URL ({} chars)", streamUrl.length());
+            return streamUrl;
+        } catch (Exception e) {
+            log.warn("Failed to get stream URL: {}", e.getMessage());
+            return null;
+        }
+    }
+
     private void logProcessStderr(Process process, String name) {
         Thread thread = new Thread(() -> {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    log.warn("[{}] {}", name, line);
+                    String upper = line.toUpperCase();
+                    if (upper.contains("WARNING") || upper.contains("ERROR") || upper.contains("FATAL")) {
+                        log.warn("[{}] {}", name, line);
+                    } else {
+                        log.debug("[{}] {}", name, line);
+                    }
                 }
             } catch (IOException ignored) {
             }
@@ -155,7 +196,7 @@ public class YtDlpLiveAudioTrack extends BaseAudioTrack {
                     p.destroyForcibly();
                 }
             }
-            log.info("Destroyed yt-dlp/ffmpeg processes for: {}", trackInfo.title);
+            log.info("Destroyed processes for: {}", trackInfo.title);
         }
     }
 
